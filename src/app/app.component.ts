@@ -1,4 +1,7 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
+import { RawDataProviderService } from './services/raw-data-provider.service';
+import { usStateCodes } from './map-provider.service';
+import * as echarts from 'echarts/lib/echarts';
 
 @Component({
   selector: 'my-app',
@@ -12,13 +15,31 @@ export class AppComponent implements OnInit  {
   firstDay: Date;
   selectedDate: Date;
   selectedDateIndex = 7;
+  mapRegistered = false;
+  isShown;
 
-  constructor() {
+  constructor(private dataService: RawDataProviderService) {
     this.todayDate = new Date();
     this.selectedDate = new Date();
   }
 
   ngOnInit() {
+    const usUrl = 'assets/usGeo.json';
+    this.dataService.sendGetRequest(usUrl).subscribe(data => {
+      const usMapJSon = this.processCountyNames(data);
+      echarts.registerMap('USA', usMapJSon);
+
+      const globeUrl = 'assets/globeGeo.json'
+      this.dataService.sendGetRequest(globeUrl).subscribe(data => {
+        const globeMapJSon = data;
+        echarts.registerMap('world', globeMapJSon);
+
+        this.mapRegistered = true;
+      });
+      
+    }, error => {
+
+    });
   }
 
   onDateChanged(data) {
@@ -28,5 +49,19 @@ export class AppComponent implements OnInit  {
     this.selectedDate = tempDate;
     /*this.getData();
     this.chartInstance.setOption({title:{text:this.chartTitle + ' (' + this.formatDate(this.selectedDate) + ')'}});*/
+  }
+
+  processCountyNames(usMap) {
+    const newFeatures = usMap['features'].map(feature => {
+      const copyObj = JSON.parse(JSON.stringify(feature));
+      copyObj.properties['name'] = copyObj.properties['name'] + ' (' +  usStateCodes[copyObj.properties['state']] + ')';
+
+      return copyObj;
+    });
+
+    return {
+      type: "FeatureCollection",
+      features: newFeatures
+    }
   }
 }

@@ -21,7 +21,7 @@
       </ul>
     </div>
   </nav>
-  <div class='container-fluid'>
+  <div *ngIf="mapRegistered" class='container-fluid'>
     <div *ngIf="view === 'usActive'">
       <app-us-active-cases [selectedDate]="selectedDate"></app-us-active-cases>
     </div>

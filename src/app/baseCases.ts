@@ -1,5 +1,5 @@
 import { Input, OnInit, AfterViewInit, ViewChild, OnChanges } from '@angular/core';
-import { usMap, usStateCodes } from './map-provider.service';
+import { usStateCodes } from './map-provider.service';
 import { EChartOption } from 'echarts';
 import * as echarts from 'echarts/lib/echarts';
 import * as $ from 'jquery';
@@ -38,10 +38,6 @@ export abstract class BaseCases implements OnInit, AfterViewInit, OnChanges {
 
   ngAfterViewInit() {
     this.chartInstance = echarts.init(this.echartInstance.nativeElement);
-    this.chartOption = this.getChartOptions();
-    this.setChartOptions();
-
-    this.chartInstance.setOption(this.chartOption);
   }
 
   ngOnChanges() {
@@ -82,7 +78,7 @@ export abstract class BaseCases implements OnInit, AfterViewInit, OnChanges {
     }
   }
 
-  processCountyNames() {
+  processCountyNames(usMap) {
     const newFeatures = usMap['features'].map(feature => {
       const copyObj = JSON.parse(JSON.stringify(feature));
       copyObj.properties['name'] = copyObj.properties['name'] + ' (' +  usStateCodes[copyObj.properties['state']] + ')';

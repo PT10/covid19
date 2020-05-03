@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 
 import { AppComponent } from './app.component';
 import { HelloComponent } from './hello.component';
+import { HttpModule } from '@angular/http';
 
 import { NgxEchartsModule } from 'ngx-echarts';
 import { MapProviderService } from './map-provider.service';
@@ -15,11 +16,15 @@ import { WorldActiveCasesComponent } from './world-active-cases/world-active-cas
 import { WorldJsonProviderService } from './world-json-provider.service';
 import { UsDeathCasesComponent } from './us-death-cases/us-death-cases.component';
 import { WorldDeathCasesComponent } from './world-death-cases/world-death-cases.component';
+import { RawDataProviderService } from './services/raw-data-provider.service';
+import { ProgressBarComponent } from './cmp/progress-bar/progress-bar.component';
+import { MatProgressBarModule } from '@angular/material';
 
 @NgModule({
-  imports:      [ BrowserModule, FormsModule, NgxEchartsModule, HttpClientModule, MatSliderModule, MatProgressSpinnerModule ],
-  declarations: [ AppComponent, HelloComponent, UsActiveCasesComponent, WorldActiveCasesComponent, UsDeathCasesComponent, WorldDeathCasesComponent],
+  imports:      [ BrowserModule, FormsModule, HttpModule, NgxEchartsModule, 
+    HttpClientModule, MatSliderModule, MatProgressSpinnerModule, MatProgressBarModule ],
+  declarations: [ AppComponent, HelloComponent, UsActiveCasesComponent, WorldActiveCasesComponent, UsDeathCasesComponent, WorldDeathCasesComponent, ProgressBarComponent],
   bootstrap:    [ AppComponent ],
-  providers: [MapProviderService, WorldJsonProviderService]
+  providers: [MapProviderService, WorldJsonProviderService, RawDataProviderService]
 })
 export class AppModule { }
