@@ -2,6 +2,7 @@ import { Component, OnInit, ViewChild } from '@angular/core';
 import { RawDataProviderService } from './services/raw-data-provider.service';
 import { usStateCodes } from './map-provider.service';
 import * as echarts from 'echarts/lib/echarts';
+import { Options } from 'ng5-slider';
 
 @Component({
   selector: 'my-app',
@@ -17,6 +18,7 @@ export class AppComponent implements OnInit  {
   selectedDateIndex = 7;
   mapRegistered = false;
   isShown;
+  _tickInterval = 7;
 
   constructor(private dataService: RawDataProviderService) {
     this.todayDate = new Date();
@@ -42,13 +44,11 @@ export class AppComponent implements OnInit  {
     });
   }
 
-  onDateChanged(data) {
-    this.selectedDateIndex = (7 - data.value) * -1;
+  onDateChanged() {
+    const diff = this._tickInterval - this.selectedDateIndex;
     const tempDate: Date = new Date(this.todayDate);
-    tempDate.setDate(this.todayDate.getDate() + this.selectedDateIndex);
+    tempDate.setDate(this.todayDate.getDate() - diff);
     this.selectedDate = tempDate;
-    /*this.getData();
-    this.chartInstance.setOption({title:{text:this.chartTitle + ' (' + this.formatDate(this.selectedDate) + ')'}});*/
   }
 
   processCountyNames(usMap) {
@@ -63,5 +63,13 @@ export class AppComponent implements OnInit  {
       type: "FeatureCollection",
       features: newFeatures
     }
+  }
+
+  get tickInterval(): number | 'auto' {
+    return this._tickInterval;
+  }
+
+  set tickInterval(v) {
+    this._tickInterval = Number(v);
   }
 }

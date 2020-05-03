@@ -17,12 +17,14 @@ export class UsDeathCasesComponent extends BaseCases {
 
   constructor(private dataService: RawDataProviderService) {
     super();
+
+    this.fileNameTemplate = 'assets/result_time_series_covid19_deaths_US_';
   }
 
   getData() {
     this.inProgress = true;
 
-    const url = 'assets/result_time_series_covid19_deaths_US_05_01_2020.json';
+    const url = this.fileNameTemplate +  this.formatDateForFileName(this.selectedDate) + '.json';
     this.dataService.sendGetRequest(url).subscribe(data => {
       this.seriesData = data;
       let actualDeltas = [];
@@ -47,11 +49,13 @@ export class UsDeathCasesComponent extends BaseCases {
         return {name: data['Admin2'] + ' (' + data['Province_State'] + ')', value: val}
       });
 
+      this.clearError();
       this.chartOption = this.getChartOptions();
       this.setChartOptions();
       this.chartInstance.setOption(this.chartOption);
       this.inProgress = false;
     }, error => {
+      this.setError();
       this.inProgress = false;
     })
   }

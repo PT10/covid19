@@ -10,6 +10,10 @@ p {
   font-family: Lato;
 }
 
+.hidden {
+  display: none;
+}
+
 .nav-link:hover {
   color: #E04E39 !important;
 }

@@ -1,2 +1,11 @@
+<ng-container *ngIf="errorMessage">
+    <div class="card bg-danger">
+        <div class="card-header">
+          <span style="margin-left:2px">
+            <a style="color: white !important">{{errorMessage}}</a>
+          </span>
+        </div>
+    </div>
+</ng-container>
 <app-progress-bar [hidden]="!inProgress"></app-progress-bar>
-<div #charts class="demo-chart" [ngStyle]="{height: chartHeight}"></div>
+<div #charts [ngClass]="errorMessage ? 'hidden': 'demo-chart'" [ngStyle]="{height: chartHeight}"></div>

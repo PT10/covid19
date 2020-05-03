@@ -1,5 +1,4 @@
 import { Input, OnInit, AfterViewInit, ViewChild, OnChanges } from '@angular/core';
-import { usStateCodes } from './map-provider.service';
 import { EChartOption } from 'echarts';
 import * as echarts from 'echarts/lib/echarts';
 import * as $ from 'jquery';
@@ -7,6 +6,7 @@ import * as $ from 'jquery';
 export abstract class BaseCases implements OnInit, AfterViewInit, OnChanges {
   seriesData = [];
   processedSeriesData = [];
+  errorMessage: string;
   inProgress: boolean;
   maxVal: number;
   minVal: number;
@@ -14,6 +14,7 @@ export abstract class BaseCases implements OnInit, AfterViewInit, OnChanges {
   chartTitle: string;
   chartInstance;
   chartHeight: string
+  fileNameTemplate: string;
 
   @Input()
   selectedDate: Date;
@@ -41,6 +42,7 @@ export abstract class BaseCases implements OnInit, AfterViewInit, OnChanges {
   }
 
   ngOnChanges() {
+    this.clearError();
     this.getData()
 
     if (this.chartInstance) {
@@ -78,21 +80,19 @@ export abstract class BaseCases implements OnInit, AfterViewInit, OnChanges {
     }
   }
 
-  processCountyNames(usMap) {
-    const newFeatures = usMap['features'].map(feature => {
-      const copyObj = JSON.parse(JSON.stringify(feature));
-      copyObj.properties['name'] = copyObj.properties['name'] + ' (' +  usStateCodes[copyObj.properties['state']] + ')';
-
-      return copyObj;
-    });
-
-    return {
-      type: "FeatureCollection",
-      features: newFeatures
-    }
+  formatDate(date:Date) {
+    return ("0" + (date.getMonth() + 1)).slice(-2) + '/' + ("0" + date.getDate()).slice(-2) + '/' + date.getFullYear();
   }
 
-  formatDate(date:Date) {
-    return (date.getMonth() + 1) + '/' + date.getDate() + '/' + date.getFullYear();
+  formatDateForFileName(date:Date) {
+    return ("0" + (date.getMonth() + 1)).slice(-2) + '_' + ("0" + date.getDate()).slice(-2) + '_' + date.getFullYear();
+  }
+
+  clearError() {
+    this.errorMessage = undefined;
+  }
+
+  setError(_error?: string) {
+    this.errorMessage = _error ? _error : 'No data found for ' + this.formatDate(this.selectedDate);
   }
 }

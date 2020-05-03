@@ -17,6 +17,8 @@ export class WorldActiveCasesComponent extends BaseCases {
 
   constructor(private dataService: RawDataProviderService) {
     super();
+
+    this.fileNameTemplate = 'assets/result_time_series_covid19_confirmed_global_';
   }
 
   ngOnInit() {
@@ -27,21 +29,13 @@ export class WorldActiveCasesComponent extends BaseCases {
     this.inProgress = true;
     let actualDeltas = [];
 
-    const url = 'assets/result_time_series_covid19_deaths_global_05_01_2020.json';
+    const url = this.fileNameTemplate +  this.formatDateForFileName(this.selectedDate) + '.json';
     this.dataService.sendGetRequest(url).subscribe(data => {
       this.seriesData = data;
       // Aggregate state wise to country level if any
       const tempSeriesData = [];
       this.seriesData.forEach(data => {
-        const series = tempSeriesData.find(s => {
-          return s['Country/Region'] === data['Country/Region'] && data['Province/State']
-        });
-        if (series) {
-          series.actualDelta += data.actualDelta;
-          series.forecastDelta += data.forecastDelta;
-          series.actual += data.actual;
-          series.forecast += data.forecast;
-        } else {
+        if (!this.seriesData['Province/State']) {
           tempSeriesData.push(data);
         }
       });
@@ -68,11 +62,13 @@ export class WorldActiveCasesComponent extends BaseCases {
         return {name: data['Country/Region'], value: val}
       });
 
+      this.clearError();
       this.chartOption = this.getChartOptions();
       this.setChartOptions();
       this.chartInstance.setOption(this.chartOption);
       this.inProgress = false;
     }, error => {
+      this.setError();
       this.inProgress = false;
     });
     

@@ -19,10 +19,12 @@ import { WorldDeathCasesComponent } from './world-death-cases/world-death-cases.
 import { RawDataProviderService } from './services/raw-data-provider.service';
 import { ProgressBarComponent } from './cmp/progress-bar/progress-bar.component';
 import { MatProgressBarModule } from '@angular/material';
+import { Ng5SliderModule } from 'ng5-slider';
 
 @NgModule({
   imports:      [ BrowserModule, FormsModule, HttpModule, NgxEchartsModule, 
-    HttpClientModule, MatSliderModule, MatProgressSpinnerModule, MatProgressBarModule ],
+    HttpClientModule, MatSliderModule, MatProgressSpinnerModule, MatProgressBarModule,
+    Ng5SliderModule ],
   declarations: [ AppComponent, HelloComponent, UsActiveCasesComponent, WorldActiveCasesComponent, UsDeathCasesComponent, WorldDeathCasesComponent, ProgressBarComponent],
   bootstrap:    [ AppComponent ],
   providers: [MapProviderService, WorldJsonProviderService, RawDataProviderService]
