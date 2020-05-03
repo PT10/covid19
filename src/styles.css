@@ -1,0 +1,32 @@
+/* Add application styles & imports to this file! */
+@import '~@angular/material/prebuilt-themes/pink-bluegrey.css';
+
+body {
+  color: white !important;
+  background-color: #003865
+}
+
+p {
+  font-family: Lato;
+}
+
+.nav-link:hover {
+  color: #E04E39 !important;
+}
+
+li.active a {
+  color: #E04E39 !important;
+}
+
+.demo-chart {
+  /* height: 500px; */
+  width: 100%;
+}
+
+* /deep/ .mat-slider.mat-slider-horizontal {
+  width: 300px;
+}
+
+* /deep/ .mat-progress-spinner circle, .mat-spinner circle {
+  stroke: red;
+}

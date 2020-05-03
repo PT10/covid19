@@ -1,0 +1,52 @@
+<div class="container-fluid">
+  <nav class="navbar navbar-expand-lg navbar-light">
+    <button class="navbar-toggler" type="button" data-toggle="collapse"   data-target="#target" aria-controls="target" aria-expanded="false" aria-label="Toggle navigation" (click)="isShown = !isShown" >
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" [ngClass]="{ 'show': isShown }" id="target">
+      <ul class="navbar-nav mr-auto">
+        <li [ngClass]="view === 'usActive' ? 'nav-item active' : 'nav-item'">
+          <a class="nav-link" href="#" (click)="isShown = !isShown; view = 'usActive';">US active</a>
+        </li>
+        <li [ngClass]="view === 'usDeaths' ? 'nav-item active' : 'nav-item'">
+          <a class="nav-link" href="#" (click)="view = 'usDeaths'; isShown = !isShown">US deaths</a>
+        </li>
+        <li [ngClass]="view === 'worldActive' ? 'nav-item active' : 'nav-item'">
+          <a class="nav-link" href="#" (click)="view = 'worldActive'; isShown = !isShown">Worldwide active</a>
+        </li>
+        <li [ngClass]="view === 'worldDeaths' ? 'nav-item active' : 'nav-item'">
+          <a class="nav-link" href="#" (click)="view = 'worldDeaths'; isShown = !isShown">Worldwide deaths</a>
+        </li>
+      </ul>
+    </div>
+  </nav>
+  <div class='container-fluid'>
+    <div *ngIf="view === 'usActive'">
+      <app-us-active-cases [selectedDate]="selectedDate"></app-us-active-cases>
+    </div>
+    <div *ngIf="view === 'worldActive'">
+      <app-world-active-cases [selectedDate]="selectedDate"></app-world-active-cases>
+    </div>
+    <div *ngIf="view === 'usDeaths'">
+      <app-us-death-cases [selectedDate]="selectedDate"></app-us-death-cases>
+    </div>
+    <div *ngIf="view === 'worldDeaths'">
+      <app-world-death-cases [selectedDate]="selectedDate"></app-world-death-cases>
+    </div>
+  
+
+  <div style="width: 100%; text-align: center">
+    <span class="text-small" style="color: white">{{firstDay}}</span>
+      <mat-slider thumbLabel min="1" max="7" step="1" value="7" displayWidth="500" (change)="onDateChanged($event)" 
+        ></mat-slider>
+    <span class="text-small" style="color: white">Today</span>
+  </div>
+  </div>
+
+  <footer class="page-footer font-small">
+    <div class="footer-copyright text-right" style="font-size: 12px !important">Powered By Bolt Analytics:
+      <a href="https://boltanalytics.com/" style="font-size: 12px !important"> boltanalytics.com</a>
+    </div>
+  </footer>
+</div>
