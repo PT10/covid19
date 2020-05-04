@@ -1,5 +1,5 @@
 <div class="container-fluid">
-  <nav class="navbar navbar-expand-lg navbar-light">
+  <nav class="navbar navbar-expand-lg navbar-dark">
     <button class="navbar-toggler" type="button" data-toggle="collapse"   data-target="#target" aria-controls="target" aria-expanded="false" aria-label="Toggle navigation" (click)="isShown = !isShown" >
       <span class="navbar-toggler-icon"></span>
     </button>
@@ -20,9 +20,12 @@
         </li>
       </ul>
     </div>
+    <a class="navbar-brand" href="#">
+      <img src="/assets/brand-light.svg" height="30px" width="150px">
+    </a> 
   </nav>
   <div *ngIf="mapRegistered" class='container-fluid'>
-    <div class="row">
+    <div class="row" style="height: 80%">
       <div class="col-sm">
         <div *ngIf="view === 'usActive'">
           <app-us-active-cases [selectedDate]="selectedDate"></app-us-active-cases>
@@ -40,21 +43,16 @@
     </div>
     <div class="row">
       <div class="col-sm">
-        <div style="width: 100%; text-align: center">
-          <span class="text-small" style="color: white">{{firstDay}}</span>
-            <mat-slider thumbLabel="false" [tick-interval]="tickInterval" 
-              min="1" max="7" step="1" [(ngModel)]="selectedDateIndex" (change)="onDateChanged()" 
-              ></mat-slider>
-          <span class="text-small" style="color: white">Today</span>
-        </div>
+        <!-- <div style="width: 100%; text-align: center"> -->
+          <app-slider [numDays]="7" [(selectedDate)]="selectedDate"></app-slider>
+        <!-- </div> -->
       </div>
     </div>
   </div>
   
-
   <footer class="page-footer font-small">
     <div class="footer-copyright text-right" style="font-size: 12px !important">Powered By:
-      <a href="https://boltanalytics.com/" style="font-size: 12px !important;">Bolt Analytics</a>
+      <a href="https://boltanalytics.com/" target="_blank" style="font-size: 12px !important;">Bolt Analytics</a>
     </div>
   </footer>
 </div>

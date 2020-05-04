@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { BaseCases } from '../baseCases';
 import { RawDataProviderService } from '../services/raw-data-provider.service';
+import { AppEventService } from '../events/app-event.service';
 
 
 @Component({
@@ -15,20 +16,16 @@ export class UsActiveCasesComponent extends BaseCases {
   selectedDateIndex: number;
   inProgress = false;
 
-  chartTitle = 'Covid 19 daily US active trends';
+  chartTitle = 'Covid-19 daily US active trends';
 
-  constructor(private dataService: RawDataProviderService) {
-    super();
+  constructor(protected dataService: RawDataProviderService, protected eventService: AppEventService) {
+    super(dataService, eventService);
 
     this.fileNameTemplate = 'assets/result_time_series_covid19_confirmed_US_';
   }
 
-  getData() {
-    this.inProgress = true;
-
-    const url = this.fileNameTemplate +  this.formatDateForFileName(this.selectedDate) + '.json';
-    this.dataService.sendGetRequest(url).subscribe(data => {
-      this.seriesData = data;
+  processData(_data: any) {
+    this.seriesData = _data;
       let actualDeltas = [];
       this.seriesData.forEach(data => {
         actualDeltas.push(data.actualDelta - data.forecastDelta);
@@ -50,16 +47,6 @@ export class UsActiveCasesComponent extends BaseCases {
         }
         return {name: data['Admin2'] + ' (' + data['Province_State'] + ')', value: val}
       });
-
-      this.clearError();
-      this.chartOption = this.getChartOptions();
-      this.setChartOptions();
-      this.chartInstance.setOption(this.chartOption);
-      this.inProgress = false;
-    }, error => {
-      this.setError();
-      this.inProgress = false;
-    })
   }
 
   setChartOptions() {

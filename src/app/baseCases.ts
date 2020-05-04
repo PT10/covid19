@@ -2,6 +2,10 @@ import { Input, OnInit, AfterViewInit, ViewChild, OnChanges } from '@angular/cor
 import { EChartOption } from 'echarts';
 import * as echarts from 'echarts/lib/echarts';
 import * as $ from 'jquery';
+import { Utils } from './utils';
+import { RawDataProviderService } from './services/raw-data-provider.service';
+import { AppEventService } from './events/app-event.service';
+import { EventNames } from './events/EventNames';
 
 export abstract class BaseCases implements OnInit, AfterViewInit, OnChanges {
   seriesData = [];
@@ -13,8 +17,8 @@ export abstract class BaseCases implements OnInit, AfterViewInit, OnChanges {
   chartOption: EChartOption;
   chartTitle: string;
   chartInstance;
-  chartHeight: string
   fileNameTemplate: string;
+  dayIndex = 7;
 
   @Input()
   selectedDate: Date;
@@ -22,17 +26,49 @@ export abstract class BaseCases implements OnInit, AfterViewInit, OnChanges {
   @ViewChild('charts')
   echartInstance
 
-  constructor() {
+  firstTimeAccess = true;
+  static initialLoading = true;
+
+  constructor(protected dataService: RawDataProviderService, protected eventService: AppEventService) {
    
   }
 
   abstract setChartOptions();
-  abstract getData();
+  abstract processData(_data: any);
+
+  getData() {
+    const url = this.fileNameTemplate +  Utils.formatDateForFileName(this.selectedDate) + '.json';
+    this.dataService.sendGetRequest(url).subscribe(data => {
+      BaseCases.initialLoading = false;
+      this.processData(data);
+      this.initChart();
+    }, error => {
+      if (BaseCases.initialLoading) {
+        if (this.dayIndex-- == 0) {
+          BaseCases.initialLoading = false;
+        } else {
+          this.eventService.publish(EventNames.NAVIGATE_BACK);
+        }
+      } else {
+        this.setError();
+        this.inProgress = false;
+      }
+    });
+  }
+
+  initChart() {
+    this.clearError();
+    this.chartOption = this.getChartOptions();
+    if (this.firstTimeAccess) {
+      this.setChartOptions();
+      this.firstTimeAccess = false;
+    }
+    this.chartInstance.setOption(this.chartOption);
+    this.inProgress = false;
+  }
 
   ngOnInit() {
-    this.chartHeight = (window.document.body.offsetHeight - 150) + 'px';
     $(window).resize((params) => {
-      this.chartHeight = window.document.body.offsetHeight - 150 + 'px';
       this.chartInstance.resize();
     });
   }
@@ -46,7 +82,7 @@ export abstract class BaseCases implements OnInit, AfterViewInit, OnChanges {
     this.getData()
 
     if (this.chartInstance) {
-      this.chartInstance.setOption({title: {text: this.chartTitle + this.formatDate(this.selectedDate)}});
+      this.chartInstance.setOption({title: {text: this.chartTitle + Utils.formatDate(this.selectedDate)}});
     }
   }
 
@@ -56,7 +92,7 @@ export abstract class BaseCases implements OnInit, AfterViewInit, OnChanges {
       backgroundColor: '#003865',
       title: {
         text: me.chartTitle + ' (' + 
-          me.formatDate(me.selectedDate) + ')',
+          Utils.formatDate(me.selectedDate) + ')',
         left: 'center',
         top: 0,
         itemGap: 0,
@@ -80,19 +116,11 @@ export abstract class BaseCases implements OnInit, AfterViewInit, OnChanges {
     }
   }
 
-  formatDate(date:Date) {
-    return ("0" + (date.getMonth() + 1)).slice(-2) + '/' + ("0" + date.getDate()).slice(-2) + '/' + date.getFullYear();
-  }
-
-  formatDateForFileName(date:Date) {
-    return ("0" + (date.getMonth() + 1)).slice(-2) + '_' + ("0" + date.getDate()).slice(-2) + '_' + date.getFullYear();
-  }
-
   clearError() {
     this.errorMessage = undefined;
   }
 
   setError(_error?: string) {
-    this.errorMessage = _error ? _error : 'No data found for ' + this.formatDate(this.selectedDate);
+    this.errorMessage = _error ? _error : 'No data found for ' + Utils.formatDate(this.selectedDate);
   }
 }

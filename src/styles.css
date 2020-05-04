@@ -31,10 +31,10 @@ li.active a {
   background-color: #E04E39 !important;
 }
 
-* /deep/ .mat-slider.mat-slider-horizontal {
-  width: 300px;
+.mat-slider.mat-slider-horizontal {
+  width: 20%;
 }
 
-* /deep/ .mat-progress-spinner circle, .mat-spinner circle {
+.mat-progress-spinner circle, .mat-spinner circle {
   stroke: red;
 }
