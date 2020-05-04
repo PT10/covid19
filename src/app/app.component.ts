@@ -13,7 +13,7 @@ export class AppComponent implements OnInit  {
 
   view = 'usActive';
   todayDate: Date;
-  firstDay: Date;
+  firstDay: any;
   selectedDate: Date;
   selectedDateIndex = 7;
   mapRegistered = false;
@@ -22,6 +22,9 @@ export class AppComponent implements OnInit  {
 
   constructor(private dataService: RawDataProviderService) {
     this.todayDate = new Date();
+    this.firstDay = new Date();
+    this.firstDay.setDate(this.firstDay.getDate() - 6);
+    this.firstDay = this.formatDate(this.firstDay);
     this.selectedDate = new Date();
   }
 
@@ -63,6 +66,10 @@ export class AppComponent implements OnInit  {
       type: "FeatureCollection",
       features: newFeatures
     }
+  }
+
+  formatDate(date:Date) {
+    return ("0" + (date.getMonth() + 1)).slice(-2) + '/' + ("0" + date.getDate()).slice(-2) + '/' + date.getFullYear();
   }
 
   get tickInterval(): number | 'auto' {

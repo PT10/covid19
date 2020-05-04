@@ -30,9 +30,9 @@ export abstract class BaseCases implements OnInit, AfterViewInit, OnChanges {
   abstract getData();
 
   ngOnInit() {
-    this.chartHeight = (window.document.body.offsetHeight - 100) + 'px';
+    this.chartHeight = (window.document.body.offsetHeight - 150) + 'px';
     $(window).resize((params) => {
-      this.chartHeight = window.document.body.offsetHeight - 100 + 'px';
+      this.chartHeight = window.document.body.offsetHeight - 150 + 'px';
       this.chartInstance.resize();
     });
   }

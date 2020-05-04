@@ -22,33 +22,39 @@
     </div>
   </nav>
   <div *ngIf="mapRegistered" class='container-fluid'>
-    <div *ngIf="view === 'usActive'">
-      <app-us-active-cases [selectedDate]="selectedDate"></app-us-active-cases>
+    <div class="row">
+      <div class="col-sm">
+        <div *ngIf="view === 'usActive'">
+          <app-us-active-cases [selectedDate]="selectedDate"></app-us-active-cases>
+        </div>
+        <div *ngIf="view === 'worldActive'">
+          <app-world-active-cases [selectedDate]="selectedDate"></app-world-active-cases>
+        </div>
+        <div *ngIf="view === 'usDeaths'">
+          <app-us-death-cases [selectedDate]="selectedDate"></app-us-death-cases>
+        </div>
+        <div *ngIf="view === 'worldDeaths'">
+          <app-world-death-cases [selectedDate]="selectedDate"></app-world-death-cases>
+        </div>
+      </div>
     </div>
-    <div *ngIf="view === 'worldActive'">
-      <app-world-active-cases [selectedDate]="selectedDate"></app-world-active-cases>
-    </div>
-    <div *ngIf="view === 'usDeaths'">
-      <app-us-death-cases [selectedDate]="selectedDate"></app-us-death-cases>
-    </div>
-    <div *ngIf="view === 'worldDeaths'">
-      <app-world-death-cases [selectedDate]="selectedDate"></app-world-death-cases>
-    </div>
-  
-
-    <div style="width: 100%; text-align: center">
-      <span class="text-small" style="color: white">{{firstDay}}</span>
-        <mat-slider thumbLabel [tick-interval]="tickInterval" 
-          min="1" max="7" step="1" [(ngModel)]="selectedDateIndex" (change)="onDateChanged()" 
-          ></mat-slider>
-      <span class="text-small" style="color: white">Today</span>
+    <div class="row">
+      <div class="col-sm">
+        <div style="width: 100%; text-align: center">
+          <span class="text-small" style="color: white">{{firstDay}}</span>
+            <mat-slider thumbLabel="false" [tick-interval]="tickInterval" 
+              min="1" max="7" step="1" [(ngModel)]="selectedDateIndex" (change)="onDateChanged()" 
+              ></mat-slider>
+          <span class="text-small" style="color: white">Today</span>
+        </div>
+      </div>
     </div>
   </div>
   
 
   <footer class="page-footer font-small">
-    <div class="footer-copyright text-right" style="font-size: 12px !important">Powered By Bolt Analytics:
-      <a href="https://boltanalytics.com/" style="font-size: 12px !important"> boltanalytics.com</a>
+    <div class="footer-copyright text-right" style="font-size: 12px !important">Powered By:
+      <a href="https://boltanalytics.com/" style="font-size: 12px !important;">Bolt Analytics</a>
     </div>
   </footer>
 </div>
