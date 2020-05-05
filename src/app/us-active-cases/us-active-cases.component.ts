@@ -21,7 +21,7 @@ export class UsActiveCasesComponent extends BaseCases {
   constructor(protected dataService: RawDataProviderService, protected eventService: AppEventService) {
     super(dataService, eventService);
 
-    this.fileNameTemplate = 'assets/result_time_series_covid19_confirmed_US_';
+    this.fileNameTemplate = this.dataFolder + 'result_anomaly_time_series_covid19_confirmed_US_';
   }
 
   processData(_data: any) {
@@ -32,17 +32,14 @@ export class UsActiveCasesComponent extends BaseCases {
       });
 
       actualDeltas = actualDeltas.sort((a, b) => {return b - a});
-      this.maxVal = actualDeltas[5];
-      this.minVal = actualDeltas[actualDeltas.length - 6];
+      this.maxVal = actualDeltas[0];
+      this.minVal = actualDeltas[actualDeltas.length - 1];
       
       this.processedSeriesData = this.seriesData.map(data => {
         let val;
         if (data.actualDelta === 0 ) {
           val = this.minVal;
-        } /*else if (data.forecastDelta === 0) {
-          val = 100;
-        } */else {
-          // val = (data.actualDelta - data.forecastDelta) / data.forecastDelta * 100;
+        }else {
           val = data.actualDelta - data.forecastDelta
         }
         return {name: data['Admin2'] + ' (' + data['Province_State'] + ')', value: val}
@@ -52,23 +49,27 @@ export class UsActiveCasesComponent extends BaseCases {
   setChartOptions() {
     const me = this;
     this.chartOption.series = [{
-          name: 'County covid19 trends',
-          type: 'map',
-          roam: true,
-          map: 'USA',
-          center: [-110, 45],
-          scaleLimit: {min: 2},
-          itemStyle: {
-            emphasis: {
-              label: {
-                show: false
-              },
-              areaColor: undefined
-            }
+      name: 'County covid19 trends',
+      type: 'map',
+      roam: true,
+      map: 'USA',
+      scaleLimit: {min: 2},
+      itemStyle: {
+        emphasis: {
+          label: {
+            show: false
           },
-          data: this.processedSeriesData
+          areaColor: undefined
         }
-      ]
+      },
+      data: this.processedSeriesData
+    }]
+
+    // Set Position of US map first time as it aligns to global center by default
+    if (this.firstTimeAccess) {
+      this.chartOption.series[0]['center'] = [-110, 45]
+      this.firstTimeAccess = false;
+    }
     
     this.chartOption.tooltip = {
         trigger: 'item',

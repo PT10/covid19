@@ -1,5 +1,8 @@
 <div class="container-fluid">
   <nav class="navbar navbar-expand-lg navbar-dark">
+    <a class="navbar-brand" href="#">
+      <img src="/assets/brand-light.svg" height="30px" width="150px">
+    </a> 
     <button class="navbar-toggler" type="button" data-toggle="collapse"   data-target="#target" aria-controls="target" aria-expanded="false" aria-label="Toggle navigation" (click)="isShown = !isShown" >
       <span class="navbar-toggler-icon"></span>
     </button>
@@ -20,9 +23,6 @@
         </li>
       </ul>
     </div>
-    <a class="navbar-brand" href="#">
-      <img src="/assets/brand-light.svg" height="30px" width="150px">
-    </a> 
   </nav>
   <div *ngIf="mapRegistered" class='container-fluid'>
     <div class="row" style="height: 80%">

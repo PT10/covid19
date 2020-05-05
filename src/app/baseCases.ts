@@ -12,13 +12,15 @@ export abstract class BaseCases implements OnInit, AfterViewInit, OnChanges {
   processedSeriesData = [];
   errorMessage: string;
   inProgress: boolean;
-  maxVal: number;
-  minVal: number;
+  maxVal = 100;
+  minVal = -100;
   chartOption: EChartOption;
   chartTitle: string;
   chartInstance;
   fileNameTemplate: string;
   dayIndex = 7;
+
+  dataFolder = "data/"
 
   @Input()
   selectedDate: Date;
@@ -26,8 +28,13 @@ export abstract class BaseCases implements OnInit, AfterViewInit, OnChanges {
   @ViewChild('charts')
   echartInstance
 
+  // Used by US map components to set zoom for the first time each map is loaded
   firstTimeAccess = true;
+
+  // Used for falling back to data availability on landing page
   static initialLoading = true;
+
+  playStarted: boolean
 
   constructor(protected dataService: RawDataProviderService, protected eventService: AppEventService) {
    
@@ -49,7 +56,11 @@ export abstract class BaseCases implements OnInit, AfterViewInit, OnChanges {
         } else {
           this.eventService.publish(EventNames.NAVIGATE_BACK);
         }
-      } else {
+      } else if (this.playStarted) {
+        this.eventService.publish(EventNames.PLAY_STATUS_CHANGED, {started: false});
+        this.eventService.publish(EventNames.NAVIGATE_BACK);
+      } 
+      else {
         this.setError();
         this.inProgress = false;
       }
@@ -59,10 +70,7 @@ export abstract class BaseCases implements OnInit, AfterViewInit, OnChanges {
   initChart() {
     this.clearError();
     this.chartOption = this.getChartOptions();
-    if (this.firstTimeAccess) {
-      this.setChartOptions();
-      this.firstTimeAccess = false;
-    }
+    this.setChartOptions();
     this.chartInstance.setOption(this.chartOption);
     this.inProgress = false;
   }
@@ -70,6 +78,10 @@ export abstract class BaseCases implements OnInit, AfterViewInit, OnChanges {
   ngOnInit() {
     $(window).resize((params) => {
       this.chartInstance.resize();
+    });
+
+    this.eventService.getObserver(EventNames.PLAY_STATUS_CHANGED).subscribe(data => {
+      this.playStarted = data.started;
     });
   }
 

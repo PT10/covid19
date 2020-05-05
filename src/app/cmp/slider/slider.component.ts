@@ -10,9 +10,6 @@ import { EventNames } from '../../events/EventNames';
 })
 export class SliderComponent implements OnInit {
 
-  // @Output()
-  // dateChanged: EventEmitter<any> = new EventEmitter<any>();
-
   @Input()
   numDays: number;
 
@@ -43,6 +40,12 @@ export class SliderComponent implements OnInit {
       this.selectedDateIndex--;
       this.onDateChanged()
     });
+
+    this.eventService.getObserver(EventNames.PLAY_STATUS_CHANGED).subscribe(data => {
+      if (!data.started) {
+        this.playing = false;
+      }
+    });
   }
 
   onDateChanged() {
@@ -56,6 +59,9 @@ export class SliderComponent implements OnInit {
 
   async startPlay() {
     this.playing = true;
+
+    this.eventService.publish(EventNames.PLAY_STATUS_CHANGED, {started: true});
+    
     while(this.selectedDateIndex !== 7 && this.playing) {
       this.selectedDateIndex++;
       this.onDateChanged();
@@ -67,6 +73,11 @@ export class SliderComponent implements OnInit {
 
   private delay(ms: number) {
     return new Promise(resolve => setTimeout(resolve, ms));
+  }
+
+  stopPlay() {
+    this.playing = false;
+    this.eventService.publish(EventNames.PLAY_STATUS_CHANGED, {started: false});
   }
 
 }

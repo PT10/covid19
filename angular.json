@@ -21,6 +21,7 @@
             "assets": [
               "src/favicon.ico",
               "src/assets",
+              "src/data",
               "src/WEB-INF"
             ],
             "styles": [

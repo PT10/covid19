@@ -4,7 +4,7 @@
     (click)="startPlay()" [disabled]="selectedDateIndex === 7"></button>
   <button *ngIf="playing" ype="button" class="btn btn-light btn-sm fa fa-pause" 
     style="margin-right: 10px; color: black" 
-    title="Pause" (click)="playing = false"></button>
+    title="Pause" (click)="stopPlay()"></button>
   <span class="text-small" style="color: white">{{firstDay}}</span>
     <mat-slider thumbLabel="false" [tick-interval]="'auto'" 
       min="1" [max]="numDays" step="1" [(ngModel)]="selectedDateIndex" (change)="onDateChanged()" 

@@ -19,7 +19,7 @@ export class WorldDeathCasesComponent extends BaseCases {
   constructor(protected dataService: RawDataProviderService, protected eventService: AppEventService) {
     super(dataService, eventService);
 
-    this.fileNameTemplate = 'assets/result_time_series_covid19_deaths_global_';
+    this.fileNameTemplate = this.dataFolder + '/result_anomaly_time_series_covid19_deaths_global_';
   }
 
   processData(_data: any) {
@@ -43,7 +43,7 @@ export class WorldDeathCasesComponent extends BaseCases {
       actualDeltas = actualDeltas.sort((a, b) => {return b - a});
       this.maxVal = actualDeltas[0];
       this.minVal = actualDeltas[actualDeltas.length - 1];
-
+      
       this.processedSeriesData = this.seriesData.map(data => {
         let val;
         if (data.actualDelta === 0 ) {

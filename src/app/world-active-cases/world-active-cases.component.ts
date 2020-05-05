@@ -19,7 +19,7 @@ export class WorldActiveCasesComponent extends BaseCases {
   constructor(protected dataService: RawDataProviderService, protected eventService: AppEventService) {
     super(dataService, eventService);
 
-    this.fileNameTemplate = 'assets/result_time_series_covid19_confirmed_global_';
+    this.fileNameTemplate = this.dataFolder + '/result_anomaly_time_series_covid19_confirmed_global_';
   }
 
   ngOnInit() {
@@ -32,7 +32,7 @@ export class WorldActiveCasesComponent extends BaseCases {
       // Aggregate state wise to country level if any
       const tempSeriesData = [];
       this.seriesData.forEach(data => {
-        if (!this.seriesData['Province/State']) {
+        if (!data['Province/State']) {
           tempSeriesData.push(data);
         }
       });
@@ -45,15 +45,12 @@ export class WorldActiveCasesComponent extends BaseCases {
       actualDeltas = actualDeltas.sort((a, b) => {return b - a});
       this.maxVal = actualDeltas[0];
       this.minVal = actualDeltas[actualDeltas.length - 1];
-
+      
       this.processedSeriesData = this.seriesData.map(data => {
         let val;
         if (data.actualDelta === 0 ) {
           val = this.minVal;
-        } /*else if (data.forecastDelta === 0) {
-          val = 100;
-        } */else {
-          // val = (data.actualDelta - data.forecastDelta) / data.forecastDelta * 100;
+        }else {
           val = data.actualDelta - data.forecastDelta
         }
         return {name: data['Country/Region'], value: val}
@@ -91,7 +88,8 @@ export class WorldActiveCasesComponent extends BaseCases {
           if (countyObj) {
             return countyObj['Country/Region'] +
             '<br/>' + 'New Cases: ' + countyObj.actualDelta + ' (Forecasted: ' + countyObj.forecastDelta + ')' +
-            '<br/>' + 'Total Cases: ' + countyObj.actual + ' (Forecasted: ' + countyObj.forecast + ')'
+            '<br/>' + 'Total Cases: ' + countyObj.actual + ' (Forecasted: ' + countyObj.forecast + ')' +
+            '<br/> Score' + countyObj.score
           }
           return params['name'];
       }}
