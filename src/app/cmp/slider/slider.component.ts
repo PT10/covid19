@@ -19,23 +19,31 @@ export class SliderComponent implements OnInit {
   @Output()
   selectedDateChange: EventEmitter<any> = new EventEmitter<any>();
 
-  selectedDateIndex = 7;
+  selectedDateIndex;
   firstDay;
 
   playing: boolean = false;
 
   delayAmt = 2000;
   
-  todayDate: Date = new Date();
+  lastDay: Date = new Date();
+
+  formatDate = Utils.formatDate;
 
   constructor(private eventService: AppEventService) { 
-    this.firstDay = new Date();
-    this.firstDay.setDate(this.firstDay.getDate() - 6);
-    this.firstDay = Utils.formatDate(this.firstDay);
-    this.selectedDate = new Date();
+    
   }
 
   ngOnInit() {
+    this.selectedDateIndex = this.numDays;
+
+    this.firstDay = new Date(this.selectedDate); //new Date();
+    this.firstDay.setDate(this.firstDay.getDate() - (this.numDays - 1));
+    this.firstDay = Utils.formatDate(this.firstDay);
+    //this.selectedDate = new Date();
+
+    this.lastDay = new Date(this.selectedDate);
+
     this.eventService.getObserver(EventNames.NAVIGATE_BACK).subscribe(data => {
       this.selectedDateIndex--;
       this.onDateChanged()
@@ -50,8 +58,8 @@ export class SliderComponent implements OnInit {
 
   onDateChanged() {
     const diff = this.numDays - this.selectedDateIndex;
-    const tempDate: Date = new Date(this.todayDate);
-    tempDate.setDate(this.todayDate.getDate() - diff);
+    const tempDate: Date = new Date(this.lastDay);
+    tempDate.setDate(this.lastDay.getDate() - diff);
     this.selectedDate = tempDate;
     
     this.selectedDateChange.emit(this.selectedDate);
@@ -62,7 +70,7 @@ export class SliderComponent implements OnInit {
 
     this.eventService.publish(EventNames.PLAY_STATUS_CHANGED, {started: true});
     
-    while(this.selectedDateIndex !== 7 && this.playing) {
+    while(this.selectedDateIndex !== this.numDays && this.playing) {
       this.selectedDateIndex++;
       this.onDateChanged();
       await this.delay(this.delayAmt);

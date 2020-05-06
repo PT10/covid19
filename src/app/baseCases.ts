@@ -1,4 +1,4 @@
-import { Input, OnInit, AfterViewInit, ViewChild, OnChanges } from '@angular/core';
+import { Input, OnInit, AfterViewInit, ViewChild, OnChanges, Output, EventEmitter } from '@angular/core';
 import { EChartOption } from 'echarts';
 import * as echarts from 'echarts/lib/echarts';
 import * as $ from 'jquery';
@@ -6,6 +6,7 @@ import { Utils } from './utils';
 import { RawDataProviderService } from './services/raw-data-provider.service';
 import { AppEventService } from './events/app-event.service';
 import { EventNames } from './events/EventNames';
+import { FetchPopulationService } from './services/fetch-population.service';
 
 export abstract class BaseCases implements OnInit, AfterViewInit, OnChanges {
   seriesData = [];
@@ -18,12 +19,18 @@ export abstract class BaseCases implements OnInit, AfterViewInit, OnChanges {
   chartTitle: string;
   chartInstance;
   fileNameTemplate: string;
-  dayIndex = 7;
+  //dayIndex = 7;
 
   dataFolder = "data/"
 
   @Input()
   selectedDate: Date;
+
+  @Input()
+  numDaysOnSlider: number;
+
+  @Output()
+  chartTitleChange: EventEmitter<any> = new EventEmitter<any>();
 
   @ViewChild('charts')
   echartInstance
@@ -34,9 +41,11 @@ export abstract class BaseCases implements OnInit, AfterViewInit, OnChanges {
   // Used for falling back to data availability on landing page
   static initialLoading = true;
 
-  playStarted: boolean
+  playStarted: boolean;
 
-  constructor(protected dataService: RawDataProviderService, protected eventService: AppEventService) {
+  constructor(protected dataService: RawDataProviderService, 
+    protected eventService: AppEventService,
+    protected populationService: FetchPopulationService) {
    
   }
 
@@ -51,7 +60,7 @@ export abstract class BaseCases implements OnInit, AfterViewInit, OnChanges {
       this.initChart();
     }, error => {
       if (BaseCases.initialLoading) {
-        if (this.dayIndex-- == 0) {
+        if (this.numDaysOnSlider-- == 0) {
           BaseCases.initialLoading = false;
         } else {
           this.eventService.publish(EventNames.NAVIGATE_BACK);
@@ -69,6 +78,7 @@ export abstract class BaseCases implements OnInit, AfterViewInit, OnChanges {
 
   initChart() {
     this.clearError();
+    //this.chartTitleChange.emit(this.chartTitle);
     this.chartOption = this.getChartOptions();
     this.setChartOptions();
     this.chartInstance.setOption(this.chartOption);
@@ -91,17 +101,16 @@ export abstract class BaseCases implements OnInit, AfterViewInit, OnChanges {
 
   ngOnChanges() {
     this.clearError();
-    this.getData()
-
-    if (this.chartInstance) {
-      this.chartInstance.setOption({title: {text: this.chartTitle + Utils.formatDate(this.selectedDate)}});
-    }
+    this.getData();
+    this.chartTitleChange.emit(this.chartTitle + ' (' + 
+      Utils.formatDate(this.selectedDate) + ')');
+    
   }
 
   getChartOptions(): EChartOption {
     const me = this;
     return {
-      backgroundColor: '#003865',
+      /*backgroundColor: '#003865',
       title: {
         text: me.chartTitle + ' (' + 
           Utils.formatDate(me.selectedDate) + ')',
@@ -110,7 +119,7 @@ export abstract class BaseCases implements OnInit, AfterViewInit, OnChanges {
         itemGap: 0,
         textStyle: {
             color: '#eee'
-      }},
+      }},*/
       visualMap: [{
         left: 'right',
         orient: 'horizontal',

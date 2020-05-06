@@ -9,5 +9,5 @@
     <mat-slider thumbLabel="false" [tick-interval]="'auto'" 
       min="1" [max]="numDays" step="1" [(ngModel)]="selectedDateIndex" (change)="onDateChanged()" 
       ></mat-slider>
-  <span class="text-small" style="color: white">Today</span>
+  <span class="text-small" style="color: white">{{formatDate(lastDay)}}</span>
 </div>

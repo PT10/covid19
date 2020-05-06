@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { BaseCases } from '../baseCases';
 import { RawDataProviderService } from '../services/raw-data-provider.service';
 import { AppEventService } from '../events/app-event.service';
+import { FetchPopulationService } from '../services/fetch-population.service';
 
 @Component({
   selector: 'app-world-active-cases',
@@ -14,10 +15,11 @@ export class WorldActiveCasesComponent extends BaseCases {
   selectedDateIndex: number;
   inProgress = false;
 
-  chartTitle = 'Covid-19 daily world active trends';
-
-  constructor(protected dataService: RawDataProviderService, protected eventService: AppEventService) {
-    super(dataService, eventService);
+  constructor(protected dataService: RawDataProviderService, 
+    protected eventService: AppEventService,
+    protected populationService: FetchPopulationService) {
+    super(dataService, eventService, populationService);
+    this.chartTitle = 'Covid-19 daily world active trends';
 
     this.fileNameTemplate = this.dataFolder + '/result_anomaly_time_series_covid19_confirmed_global_';
   }
@@ -40,6 +42,9 @@ export class WorldActiveCasesComponent extends BaseCases {
 
       this.seriesData.forEach(data => {
         actualDeltas.push(data.actualDelta - data.forecastDelta);
+        if (!this.populationService.countyPopDesnity[data['Country/Region']]) {
+          console.log(data['Country/Region']);
+        }
       });
 
       actualDeltas = actualDeltas.sort((a, b) => {return b - a});
@@ -88,8 +93,7 @@ export class WorldActiveCasesComponent extends BaseCases {
           if (countyObj) {
             return countyObj['Country/Region'] +
             '<br/>' + 'New Cases: ' + countyObj.actualDelta + ' (Forecasted: ' + countyObj.forecastDelta + ')' +
-            '<br/>' + 'Total Cases: ' + countyObj.actual + ' (Forecasted: ' + countyObj.forecast + ')' +
-            '<br/> Score' + countyObj.score
+            '<br/>' + 'Total Cases: ' + countyObj.actual + ' (Forecasted: ' + countyObj.forecast + ')'
           }
           return params['name'];
       }}

@@ -11,18 +11,22 @@ import * as echarts from 'echarts/lib/echarts';
 export class AppComponent implements OnInit  {
 
   view = 'usActive';
+  chartTitle = "";
   firstDay: any;
-  selectedDate: Date = new Date();
-  selectedDateIndex = 7;
+  selectedDate: Date;
+  numDaysOnSlider = 7; // Number of days user can navigate on the slider
+  numDaysInFurure = 0;  // To be added in today's date to find last day
+  selectedDateIndex;
   mapRegistered = false;
   isShown;
-  _tickInterval = 7;
 
   constructor(private dataService: RawDataProviderService) {
-    
+    this.selectedDate = new Date();
+    this.selectedDate.setDate(this.selectedDate.getDate() + this.numDaysInFurure);
   }
 
   ngOnInit() {
+    this.selectedDateIndex = this.numDaysOnSlider;
     const usUrl = 'assets/usGeo.json';
     this.dataService.sendGetRequest(usUrl).subscribe(data => {
       const usMapJSon = this.processCountyNames(data);

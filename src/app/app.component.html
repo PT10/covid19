@@ -25,26 +25,31 @@
     </div>
   </nav>
   <div *ngIf="mapRegistered" class='container-fluid'>
-    <div class="row" style="height: 80%">
+    <div class="row" style="height: 5%;">
+      <div class="col-sm" style="text-align: center;">
+          {{chartTitle}}
+      </div>
+    </div>
+    <div class="row" style="height: 75%">
       <div class="col-sm">
         <div *ngIf="view === 'usActive'">
-          <app-us-active-cases [selectedDate]="selectedDate"></app-us-active-cases>
+          <app-us-active-cases [selectedDate]="selectedDate" [numDaysOnSlider]="numDaysOnSlider" (chartTitleChange)="chartTitle = $event"></app-us-active-cases>
         </div>
         <div *ngIf="view === 'worldActive'">
-          <app-world-active-cases [selectedDate]="selectedDate"></app-world-active-cases>
+          <app-world-active-cases [selectedDate]="selectedDate" [numDaysOnSlider]="numDaysOnSlider" (chartTitleChange)="chartTitle = $event"></app-world-active-cases>
         </div>
         <div *ngIf="view === 'usDeaths'">
-          <app-us-death-cases [selectedDate]="selectedDate"></app-us-death-cases>
+          <app-us-death-cases [selectedDate]="selectedDate" [numDaysOnSlider]="numDaysOnSlider" (chartTitleChange)="chartTitle = $event"></app-us-death-cases>
         </div>
         <div *ngIf="view === 'worldDeaths'">
-          <app-world-death-cases [selectedDate]="selectedDate"></app-world-death-cases>
+          <app-world-death-cases [selectedDate]="selectedDate" [numDaysOnSlider]="numDaysOnSlider" (chartTitleChange)="chartTitle = $event"></app-world-death-cases>
         </div>
       </div>
     </div>
     <div class="row">
       <div class="col-sm">
         <!-- <div style="width: 100%; text-align: center"> -->
-          <app-slider [numDays]="7" [(selectedDate)]="selectedDate"></app-slider>
+          <app-slider thumbLanel [numDays]="numDaysOnSlider" [(selectedDate)]="selectedDate"></app-slider>
         <!-- </div> -->
       </div>
     </div>

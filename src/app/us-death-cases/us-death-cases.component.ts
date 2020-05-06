@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { BaseCases } from '../baseCases';
 import { RawDataProviderService } from '../services/raw-data-provider.service';
 import { AppEventService } from '../events/app-event.service';
+import { FetchPopulationService } from '../services/fetch-population.service';
 
 @Component({
   selector: 'app-us-death-cases',
@@ -14,11 +15,11 @@ export class UsDeathCasesComponent extends BaseCases {
   selectedDateIndex: number;
   inProgress = false;
 
-  chartTitle = 'Covid-19 daily US death trends';
-
-  constructor(protected dataService: RawDataProviderService, protected eventService: AppEventService) {
-    super(dataService, eventService);
-
+  constructor(protected dataService: RawDataProviderService, 
+    protected eventService: AppEventService,
+    protected populationService: FetchPopulationService) {
+    super(dataService, eventService, populationService);
+    this.chartTitle = 'Covid-19 daily US death trends';
     this.fileNameTemplate = this.dataFolder + '/result_anomaly_time_series_covid19_deaths_US_';
   }
 

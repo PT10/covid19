@@ -21,12 +21,13 @@ import { ProgressBarComponent } from './cmp/progress-bar/progress-bar.component'
 import { MatProgressBarModule } from '@angular/material';
 import { SliderComponent } from './cmp/slider/slider.component';
 import { AppEventService } from './events/app-event.service';
+import { FetchPopulationService } from './services/fetch-population.service';
 
 @NgModule({
   imports:      [ BrowserModule, FormsModule, HttpModule, NgxEchartsModule, 
     HttpClientModule, MatSliderModule, MatProgressSpinnerModule, MatProgressBarModule ],
   declarations: [ AppComponent, HelloComponent, UsActiveCasesComponent, WorldActiveCasesComponent, UsDeathCasesComponent, WorldDeathCasesComponent, ProgressBarComponent, SliderComponent],
   bootstrap:    [ AppComponent ],
-  providers: [MapProviderService, WorldJsonProviderService, RawDataProviderService, AppEventService]
+  providers: [MapProviderService, WorldJsonProviderService, RawDataProviderService, AppEventService, FetchPopulationService]
 })
 export class AppModule { }
