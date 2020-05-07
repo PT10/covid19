@@ -7,6 +7,8 @@ import { RawDataProviderService } from './services/raw-data-provider.service';
 import { AppEventService } from './events/app-event.service';
 import { EventNames } from './events/EventNames';
 import { FetchPopulationService } from './services/fetch-population.service';
+import { ActivatedRoute } from '@angular/router';
+import { ConfigService } from './services/config.service';
 
 export abstract class BaseCases implements OnInit, AfterViewInit, OnChanges {
   seriesData = [];
@@ -19,6 +21,7 @@ export abstract class BaseCases implements OnInit, AfterViewInit, OnChanges {
   chartTitle: string;
   chartInstance;
   fileNameTemplate: string;
+  fileNameToken = 'anomaly';
   //dayIndex = 7;
 
   dataFolder = "data/"
@@ -41,12 +44,22 @@ export abstract class BaseCases implements OnInit, AfterViewInit, OnChanges {
   // Used for falling back to data availability on landing page
   static initialLoading = true;
 
+  directLink = false;
+
   playStarted: boolean;
 
   constructor(protected dataService: RawDataProviderService, 
     protected eventService: AppEventService,
-    protected populationService: FetchPopulationService) {
-   
+    protected populationService: FetchPopulationService,
+    protected route: ActivatedRoute,
+    protected config: ConfigService) {
+      this.route.queryParams.subscribe(params => {
+        if (params['date']) {
+          this.directLink = true;
+        }
+      });
+
+      this.fileNameToken = this.config.fileNameToken;
   }
 
   abstract setChartOptions();
@@ -59,7 +72,7 @@ export abstract class BaseCases implements OnInit, AfterViewInit, OnChanges {
       this.processData(data);
       this.initChart();
     }, error => {
-      if (BaseCases.initialLoading) {
+      if (BaseCases.initialLoading && !this.directLink) {
         if (this.numDaysOnSlider-- == 0) {
           BaseCases.initialLoading = false;
         } else {

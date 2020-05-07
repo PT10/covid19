@@ -3,6 +3,8 @@ import { BaseCases } from '../baseCases';
 import { RawDataProviderService } from '../services/raw-data-provider.service';
 import { AppEventService } from '../events/app-event.service';
 import { FetchPopulationService } from '../services/fetch-population.service';
+import { ActivatedRoute } from '@angular/router';
+import { ConfigService } from '../services/config.service';
 
 
 @Component({
@@ -19,10 +21,12 @@ export class UsActiveCasesComponent extends BaseCases {
 
   constructor(protected dataService: RawDataProviderService, 
     protected eventService: AppEventService,
-    protected populationService: FetchPopulationService) {
-    super(dataService, eventService, populationService);
+    protected populationService: FetchPopulationService,
+    protected route: ActivatedRoute,
+    protected config: ConfigService) {
+    super(dataService, eventService, populationService, route, config);
     this.chartTitle = 'Covid-19 daily US active trends';
-    this.fileNameTemplate = this.dataFolder + 'result_anomaly_time_series_covid19_confirmed_US_';
+    this.fileNameTemplate = this.dataFolder + 'result_' + this.fileNameToken + '_time_series_covid19_confirmed_US_';
   }
 
   processData(_data: any) {
@@ -68,7 +72,7 @@ export class UsActiveCasesComponent extends BaseCases {
 
     // Set Position of US map first time as it aligns to global center by default
     if (this.firstTimeAccess) {
-      this.chartOption.series[0]['center'] = [-110, 45]
+      this.chartOption.series[0]['center'] = [-110, 40]
       this.firstTimeAccess = false;
     }
     

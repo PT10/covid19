@@ -2,6 +2,8 @@ import { Component, OnInit, Output, Input, EventEmitter } from '@angular/core';
 import { Utils } from '../../utils';
 import { AppEventService } from '../../events/app-event.service';
 import { EventNames } from '../../events/EventNames';
+import * as $ from 'jquery';
+import { MatSliderChange } from '@angular/material';
 
 @Component({
   selector: 'app-slider',
@@ -14,19 +16,27 @@ export class SliderComponent implements OnInit {
   numDays: number;
 
   @Input()
-  selectedDate: Date;
+  selectedDate: any;
+
+  @Input()
+  lastDay: any;
+
+  @Input()
+  firstDay: any;
+
+  @Input()
+  defaultSelectedIndex: number
 
   @Output()
   selectedDateChange: EventEmitter<any> = new EventEmitter<any>();
 
   selectedDateIndex;
-  firstDay;
 
   playing: boolean = false;
 
   delayAmt = 2000;
   
-  lastDay: Date = new Date();
+  //lastDay: Date = new Date();
 
   formatDate = Utils.formatDate;
 
@@ -35,18 +45,16 @@ export class SliderComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.selectedDateIndex = this.numDays;
+    const diffTime = Math.abs(this.lastDay - this.selectedDate);
+    this.selectedDateIndex = Math.floor((this.numDays - (diffTime / (1000 * 60 * 60 * 24)))); //this.defaultSelectedIndex; //this.numDays;
 
-    this.firstDay = new Date(this.selectedDate); //new Date();
-    this.firstDay.setDate(this.firstDay.getDate() - (this.numDays - 1));
     this.firstDay = Utils.formatDate(this.firstDay);
-    //this.selectedDate = new Date();
-
-    this.lastDay = new Date(this.selectedDate);
 
     this.eventService.getObserver(EventNames.NAVIGATE_BACK).subscribe(data => {
-      this.selectedDateIndex--;
-      this.onDateChanged()
+      if (this.selectedDateIndex > 1) {
+        this.selectedDateIndex--;
+        this.onDateChanged();
+      }
     });
 
     this.eventService.getObserver(EventNames.PLAY_STATUS_CHANGED).subscribe(data => {
@@ -63,6 +71,7 @@ export class SliderComponent implements OnInit {
     this.selectedDate = tempDate;
     
     this.selectedDateChange.emit(this.selectedDate);
+    $('.mat-slider-thumb-label-text').text(Utils.getDateMonth(this.selectedDate));
   }
 
   async startPlay() {
@@ -87,5 +96,13 @@ export class SliderComponent implements OnInit {
     this.playing = false;
     this.eventService.publish(EventNames.PLAY_STATUS_CHANGED, {started: false});
   }
+
+  onSlide(event: MatSliderChange) {
+    const index = event.value - 1;
+    const tempFirstDay = new Date(this.firstDay);
+    tempFirstDay.setDate(tempFirstDay.getDate() + index);
+    $('.mat-slider-thumb-label-text').text(Utils.getDateMonth(tempFirstDay));
+  }
+
 
 }

@@ -3,6 +3,8 @@ import { BaseCases } from '../baseCases';
 import { RawDataProviderService } from '../services/raw-data-provider.service';
 import { AppEventService } from '../events/app-event.service';
 import { FetchPopulationService } from '../services/fetch-population.service';
+import { ActivatedRoute } from '@angular/router';
+import { ConfigService } from '../services/config.service';
 
 @Component({
   selector: 'app-us-death-cases',
@@ -17,10 +19,12 @@ export class UsDeathCasesComponent extends BaseCases {
 
   constructor(protected dataService: RawDataProviderService, 
     protected eventService: AppEventService,
-    protected populationService: FetchPopulationService) {
-    super(dataService, eventService, populationService);
+    protected populationService: FetchPopulationService,
+    protected route: ActivatedRoute,
+    protected config: ConfigService) {
+    super(dataService, eventService, populationService, route, config);
     this.chartTitle = 'Covid-19 daily US death trends';
-    this.fileNameTemplate = this.dataFolder + '/result_anomaly_time_series_covid19_deaths_US_';
+    this.fileNameTemplate = this.dataFolder + '/result_' + this.fileNameToken + '_time_series_covid19_deaths_US_';
   }
 
   processData(_data: any) {

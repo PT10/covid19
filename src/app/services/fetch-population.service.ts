@@ -4,14 +4,19 @@ import { RawDataProviderService } from './raw-data-provider.service';
 @Injectable()
 export class FetchPopulationService {
 
-  countyPopDesnity = {};
+  countryPopDesnity = {};
+  countryPopTotal = {};
   usPopDensity = {};
 
   constructor(private dataProvider: RawDataProviderService) {
     this.dataProvider.sendGetRequest('assets/populationDensity.json').subscribe(data => {
-      this.countyPopDesnity = data;
+      this.countryPopDesnity = data;
       console.log(data);
     });
-    
+
+    this.dataProvider.sendGetRequest('assets/countryPopulationTotal.json').subscribe(data => {
+      this.countryPopTotal = data;
+    });
+
   }
 }

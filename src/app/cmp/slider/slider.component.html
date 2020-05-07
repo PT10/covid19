@@ -1,13 +1,15 @@
 <div style="width: 100%; text-align: center">
   <button type="button" type="button" *ngIf="!playing" class="btn btn-light btn-sm fa fa-play" 
     style="margin-right: 10px; color: black" title="Play" 
-    (click)="startPlay()" [disabled]="selectedDateIndex === 7"></button>
+    (click)="startPlay()" [disabled]="selectedDateIndex === numDays"></button>
   <button *ngIf="playing" ype="button" class="btn btn-light btn-sm fa fa-pause" 
     style="margin-right: 10px; color: black" 
     title="Pause" (click)="stopPlay()"></button>
-  <span class="text-small" style="color: white">{{firstDay}}</span>
-    <mat-slider thumbLabel="false" [tick-interval]="'auto'" 
-      min="1" [max]="numDays" step="1" [(ngModel)]="selectedDateIndex" (change)="onDateChanged()" 
+  <span class="text-small labelStyle">{{firstDay}}</span>
+    <mat-slider [thumbLabel]="true" [tickInterval]="1" 
+      min="1" [max]="numDays" step="1" [(ngModel)]="selectedDateIndex" 
+      (input)="onSlide($event)"
+      (change)="onDateChanged()" 
       ></mat-slider>
-  <span class="text-small" style="color: white">{{formatDate(lastDay)}}</span>
+  <span class="text-small labelStyle">{{formatDate(lastDay)}}</span>
 </div>

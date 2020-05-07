@@ -1,0 +1,8 @@
+.labelStyle {
+    color: white;
+    font-size: 14px;
+}
+
+* /deep/ .mat-slider-thumb-label-text {
+    font-size: 10px !important;
+}
