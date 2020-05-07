@@ -21,7 +21,7 @@ export abstract class BaseCases implements OnInit, AfterViewInit, OnChanges {
   chartTitle: string;
   chartInstance;
   fileNameTemplate: string;
-  fileNameToken = 'anomaly';
+  fileNameToken = 'delta2';
   //dayIndex = 7;
 
   dataFolder = "data/"
