@@ -37,6 +37,12 @@ export class UsDeathCasesComponent extends BaseCases {
       actualDeltas = actualDeltas.sort((a, b) => {return b - a});
       this.maxVal = actualDeltas[0];
       this.minVal = actualDeltas[actualDeltas.length - 1];
+
+      if (this.maxVal > (-1 * this.minVal)) {
+        this.minVal = -1 * this.maxVal;
+      } else {
+        this.maxVal = -1 * this.minVal;
+      }
       
       this.processedSeriesData = this.seriesData.map(data => {
        let val;

@@ -60,6 +60,12 @@ export class WorldActiveCasesComponent extends BaseCases {
       this.maxVal = actualDeltas[0];
       this.minVal = actualDeltas[actualDeltas.length - 1];
 
+      if (this.maxVal > (-1 * this.minVal)) {
+        this.minVal = -1 * this.maxVal;
+      } else {
+        this.maxVal = -1 * this.minVal;
+      }
+
       // this.absMax = actualDeltas[10];
       // this.absMin = actualDeltas[actualDeltas.length - 11];
       
