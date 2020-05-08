@@ -1,8 +1,15 @@
 .labelStyle {
     color: white;
-    font-size: 14px;
+    font-size: 12px;
 }
 
 * /deep/ .mat-slider-thumb-label-text {
     font-size: 10px !important;
+}
+
+.button-style {
+    margin-right: 10px; 
+    color: white; 
+    background: green; 
+    border: none;
 }

@@ -52,13 +52,15 @@ export class AppComponent implements OnInit  {
     if (!this.view) {
       this.view = this.config.defaultView;
     }
+
+    const refDate = new Date();
     if (!this.selectedDate) {
-      this.selectedDate = new Date();
+      this.selectedDate = new Date(refDate);
     }
 
-    this.firstDay = new Date();
+    this.firstDay = new Date(refDate);
     this.firstDay.setDate(this.firstDay.getDate() - (this.numDaysOnSlider - this.numDaysInFurure) + 1); // 1 for current day
-    this.lastDay = new Date();
+    this.lastDay = new Date(refDate);
     this.lastDay.setDate(this.lastDay.getDate() + this.numDaysInFurure);
 
     this.configLoaded = true;

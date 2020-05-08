@@ -1,9 +1,7 @@
-<div style="width: 100%; text-align: center">
-  <button type="button" type="button" *ngIf="!playing" class="btn btn-light btn-sm fa fa-play" 
-    style="margin-right: 10px; color: black" title="Play" 
+<div style="width: 100%;">
+  <button type="button" type="button" *ngIf="!playing || firstTimePlay" class="btn btn-light btn-sm fa fa-play button-style" title="Play" 
     (click)="startPlay()" [disabled]="selectedDateIndex === numDays"></button>
-  <button *ngIf="playing" ype="button" class="btn btn-light btn-sm fa fa-pause" 
-    style="margin-right: 10px; color: black" 
+  <button *ngIf="playing" ype="button" class="btn btn-light btn-sm fa fa-pause button-style"
     title="Pause" (click)="stopPlay()"></button>
   <span class="text-small labelStyle">{{firstDay}}</span>
     <mat-slider [thumbLabel]="true" [tickInterval]="1" 

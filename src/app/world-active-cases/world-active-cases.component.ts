@@ -42,8 +42,7 @@ export class WorldActiveCasesComponent extends BaseCases {
       // Aggregate state wise to country level if any
       const tempSeriesData = [];
       this.seriesData.forEach(data => {
-        if (!data['Province/State'] &&
-        this.populationService.countryPopTotal[data['Country/Region']]) {
+        if (!data['Province/State']) {
           tempSeriesData.push(data);
         }
       });

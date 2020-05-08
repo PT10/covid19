@@ -36,7 +36,7 @@ export class SliderComponent implements OnInit {
 
   delayAmt = 2000;
   
-  //lastDay: Date = new Date();
+  firstTimePlay = false;
 
   formatDate = Utils.formatDate;
 
@@ -46,11 +46,15 @@ export class SliderComponent implements OnInit {
 
   ngOnInit() {
     const diffTime = Math.abs(this.lastDay - this.selectedDate);
-    this.selectedDateIndex = Math.floor((this.numDays - (diffTime / (1000 * 60 * 60 * 24)))); //this.defaultSelectedIndex; //this.numDays;
+    this.selectedDateIndex = Math.round((this.numDays - (diffTime / (1000 * 60 * 60 * 24)))); //this.defaultSelectedIndex; //this.numDays;
 
     this.firstDay = Utils.formatDate(this.firstDay);
-
+    console.log("Selected date in init: " + this.selectedDate);
+    console.log("Last date in init: " + this.lastDay);
+    console.log("numDays in init: " + this.numDays);
+    console.log("Selected Index in init: " + this.selectedDateIndex);
     this.eventService.getObserver(EventNames.NAVIGATE_BACK).subscribe(data => {
+      console.log("Selected Index: " + this.selectedDateIndex);
       if (this.selectedDateIndex > 1) {
         this.selectedDateIndex--;
         this.onDateChanged();
@@ -62,13 +66,19 @@ export class SliderComponent implements OnInit {
         this.playing = false;
       }
     });
+
+    this.eventService.getObserver(EventNames.INITIAL_LOADING_COMPLETED).subscribe(data => {
+      this.firstTimePlay = true;
+    });
   }
 
   onDateChanged() {
+    this.firstTimePlay = false;
     const diff = this.numDays - this.selectedDateIndex;
     const tempDate: Date = new Date(this.lastDay);
     tempDate.setDate(this.lastDay.getDate() - diff);
     this.selectedDate = tempDate;
+    console.log("Selected date changed to: " + this.selectedDate);
     
     this.selectedDateChange.emit(this.selectedDate);
     $('.mat-slider-thumb-label-text').text(Utils.getDateMonth(this.selectedDate));
@@ -78,6 +88,11 @@ export class SliderComponent implements OnInit {
     this.playing = true;
 
     this.eventService.publish(EventNames.PLAY_STATUS_CHANGED, {started: true});
+
+    if (this.firstTimePlay) {
+      this.firstTimePlay = false;
+      this.selectedDateIndex = 0;
+    }
     
     while(this.selectedDateIndex !== this.numDays && this.playing) {
       this.selectedDateIndex++;

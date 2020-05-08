@@ -1,3 +1,53 @@
 a {
   color: white !important;
 }
+
+/* .navbar-nav>li{
+  border-right: 1px solid white;
+  line-height: 0.4em;
+} */
+
+/* .border-md-right {
+  border-right: 1px solid silver;
+}
+
+@media (max-width: 768px) {
+  .border-md-right {
+    border-right: none;
+  }
+} */
+
+.nav-item {
+  line-height: 0.3em;
+}
+
+.nav-item:not(:last-child) {
+  border-right: 1px solid white;
+}
+
+@media (max-width: 1200px) {
+  .nav-item {
+    line-height: 0.8em;
+  }
+ .nav-item:not(:last-child) {
+   border-right: none;
+ }
+}
+
+.charttitle {
+  /* text-align: center;  */
+  font-size: 16px !important; 
+  font-weight: bold;
+}
+
+.legend-button {
+  height:16px; 
+  width: 16px;
+  border: none;
+  border-radius: 10%;
+}
+
+/* .col-sm-3 {
+  padding-right: 0px !important;
+  padding-left: 0px !important;
+} */

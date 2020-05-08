@@ -1,8 +1,7 @@
-<app-progress-bar [hidden]="configLoaded"></app-progress-bar>
 <div class="container-fluid">
   <nav class="navbar navbar-expand-lg navbar-dark">
     <a class="navbar-brand" href="#">
-      <img src="/assets/brand-light.svg" height="30px" width="150px">
+      <img src="assets/brand-light.svg" height="30px" width="150px">
     </a> 
     <button class="navbar-toggler" type="button" data-toggle="collapse"   data-target="#target" aria-controls="target" aria-expanded="false" aria-label="Toggle navigation" (click)="isShown = !isShown" >
       <span class="navbar-toggler-icon"></span>
@@ -25,14 +24,44 @@
       </ul>
     </div>
   </nav>
+  <app-progress-bar [hidden]="mapRegistered && configLoaded"></app-progress-bar>
   <div *ngIf="mapRegistered && configLoaded" class='container-fluid'>
-    <div class="row">
-      <div class="col-sm" style="text-align: center; font-size: 20px;">
-          {{chartTitle}}
+    <div class="row" style="margin-top: 1px">
+      <div class="col-sm text-right">
+          <app-slider thumbLanel 
+            [numDays]="numDaysOnSlider" 
+            [(selectedDate)]="selectedDate" 
+            [firstDay]="firstDay"
+            [lastDay]="lastDay"
+          ></app-slider>
       </div>
     </div>
-    <div class="row" style="height: 75%">
-      <div class="col-sm">
+    <div class="row" style="font-size: 12px; margin: 20px 0;">
+      <div class="col">
+          <div class="text-center charttitle">{{chartTitle}}</div>
+      </div>
+      <div class="col-md-auto">
+        <span>As comapred to past trend: </span>
+      </div>
+      <div class="col-sm-auto">
+        <div class="row">
+          <div class="col-sm-auto">
+            <button type="button" class="legend-button" style="background: green;"></button>
+            <span>Improving</span>
+          </div>
+          <div class="col-sm-auto">
+            <button type="button" class="legend-button" style="background: yellow;"></button>
+            <span>Same</span>
+          </div>
+          <div class="col-sm-auto">
+            <button type="button" class="legend-button" style="background: red;"></button>
+            <span>Worsening</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="row justify-content-center" style="height: 75%;">
+      <div class="col-sm-11 text-center" style="background: #063f6d;">
         <div *ngIf="view === 'usActive'">
           <app-us-active-cases [selectedDate]="selectedDate" [numDaysOnSlider]="numDaysOnSlider" (chartTitleChange)="chartTitle = $event"></app-us-active-cases>
         </div>
@@ -47,19 +76,17 @@
         </div>
       </div>
     </div>
-    <div class="row">
-      <div class="col-sm">
-        <!-- <div style="width: 100%; text-align: center"> -->
+    <!-- <div class="row" style="margin-top: 1px">
+      <div class="col-sm text-center">
           <app-slider thumbLanel 
             [numDays]="numDaysOnSlider" 
             [(selectedDate)]="selectedDate" 
             [firstDay]="firstDay"
             [lastDay]="lastDay"
           ></app-slider>
-        <!-- </div> -->
       </div>
-    </div>
-    <div class="row" style="margin-top: 10px">
+    </div> -->
+    <div class="row" style="margin-top: 30px">
       <span style="font-size: 12px;">
         <i>Methodology: Each day we apply our forecast models on the updated data provided by
         <a style="color: #E04E39 !important;" href="https://github.com/CSSEGISandData/COVID-19/" target="_blank">Center for Systems Science and Engineering (CSSE) at Johns Hopkins University</a>. Based on the models, 

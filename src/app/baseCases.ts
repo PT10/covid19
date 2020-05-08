@@ -68,6 +68,9 @@ export abstract class BaseCases implements OnInit, AfterViewInit, OnChanges {
   getData() {
     const url = this.fileNameTemplate +  Utils.formatDateForFileName(this.selectedDate) + '.json';
     this.dataService.sendGetRequest(url).subscribe(data => {
+      if (BaseCases.initialLoading) { // For the slider "play" to reset to 0 first time
+        this.eventService.publish(EventNames.INITIAL_LOADING_COMPLETED);
+      }
       BaseCases.initialLoading = false;
       this.processData(data);
       this.initChart();
@@ -75,6 +78,7 @@ export abstract class BaseCases implements OnInit, AfterViewInit, OnChanges {
       if (BaseCases.initialLoading && !this.directLink) {
         if (this.numDaysOnSlider-- == 0) {
           BaseCases.initialLoading = false;
+          this.eventService.publish(EventNames.INITIAL_LOADING_COMPLETED);
         } else {
           this.eventService.publish(EventNames.NAVIGATE_BACK);
         }
@@ -135,13 +139,17 @@ export abstract class BaseCases implements OnInit, AfterViewInit, OnChanges {
       }},*/
       visualMap: [{
         left: 'right',
+        top: 'top',
         orient: 'horizontal',
         min: me.maxVal,
         max: me.minVal,
+        //itemHeight: 200,
+        textGap: 20,
         inRange: {
             color: ['red', 'orange', 'yellow', 'green'].reverse()
         },
-        text: ['High', 'Low'],
+        //text: ['High', 'Low'],
+        align: 'bottom',
         textStyle: {
           color: 'white'
         },

@@ -63,6 +63,7 @@ export class UsDeathCasesComponent extends BaseCases {
       roam: true,
       map: 'USA',
       scaleLimit: {min: 2},
+      zoom: 5,
       itemStyle: {
         emphasis: {
           label: {
@@ -76,7 +77,7 @@ export class UsDeathCasesComponent extends BaseCases {
 
     // Set Position of US map first time as it aligns to global center by default
     if (this.firstTimeAccess) {
-      this.chartOption.series[0]['center'] = [-110, 45]
+      this.chartOption.series[0]['center'] = [-100, 36]
       this.firstTimeAccess = false;
     }
     
