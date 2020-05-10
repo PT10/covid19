@@ -7,11 +7,11 @@ import { ActivatedRoute } from '@angular/router';
 import { ConfigService } from '../services/config.service';
 
 @Component({
-  selector: 'app-world-active-cases',
-  templateUrl: './world-active-cases.component.html',
-  styleUrls: ['./world-active-cases.component.css']
+  selector: 'app-world-confirmed-cases',
+  templateUrl: './world-confirmed-cases.component.html',
+  styleUrls: ['./world-confirmed-cases.component.css']
 })
-export class WorldActiveCasesComponent extends BaseCases {
+export class WorldConfirmedCasesComponent extends BaseCases {
 
   relocatedCounties;
   selectedDateIndex: number;
@@ -26,10 +26,9 @@ export class WorldActiveCasesComponent extends BaseCases {
     protected route: ActivatedRoute,
     protected config: ConfigService) {
     super(dataService, eventService, populationService, route, config);
-    this.chartTitle = 'Covid-19 daily world active trends';
+    this.chartTitle = 'Covid-19 daily world confirmed trends';
 
     this.fileNameTemplate = this.dataFolder + '/result_' + this.fileNameToken + '_time_series_covid19_confirmed_global_';
-    //this.fileNameTemplate = this.dataFolder + '/result_forecast_delta_time_series_covid19_confirmed_global_';
   }
 
   ngOnInit() {
@@ -50,9 +49,6 @@ export class WorldActiveCasesComponent extends BaseCases {
 
       this.seriesData.forEach(data => {
         actualDeltas.push(data.actualDelta - data.forecastDelta);
-        // const densFactor = this.populationService.countryPopTotal[data['Country/Region']];
-
-        // actualDeltas.push((data.cases/densFactor) * 1000000);
       });
 
       actualDeltas = actualDeltas.sort((a, b) => {return b - a});
@@ -65,9 +61,6 @@ export class WorldActiveCasesComponent extends BaseCases {
         this.maxVal = -1 * this.minVal;
       }
 
-      // this.absMax = actualDeltas[10];
-      // this.absMin = actualDeltas[actualDeltas.length - 11];
-      
       this.processedSeriesData = this.seriesData.map(data => {
         let val;
         if (data.actualDelta === 0 ) {
@@ -75,14 +68,6 @@ export class WorldActiveCasesComponent extends BaseCases {
         }else {
           val = data.actualDelta - data.forecastDelta
         }
-        /*val = data.cases;
-        const densFactor = this.populationService.countryPopTotal[data['Country/Region']];
-        if (densFactor) {
-          val = (val / densFactor) * 1000000
-
-          val = (val - this.absMin) / (this.absMax - this.absMin) * 100
-
-        }*/
         return {name: data['Country/Region'], value: val}
       });
   }
@@ -111,18 +96,18 @@ export class WorldActiveCasesComponent extends BaseCases {
     this.chartOption.tooltip = {
         trigger: 'item',
         formatter: function(params) {
-          const countyObj = me.seriesData.find(d => {
+          let countyObj = me.seriesData.find(d => {
             return d['Country/Region'] === params['name']
           });
 
           if (countyObj) {
-            /*let val = countyObj.cases;
-            const densFactor = me.populationService.countryPopTotal[countyObj['Country/Region']];
-            if (densFactor) {
-              val = (val / densFactor) * 1000000
+            countyObj = JSON.parse(JSON.stringify(countyObj));
+            if (countyObj.forecastDelta < 0) {
+              countyObj.forecastDelta = 0;
             }
-            val = (val - me.absMin) / (me.absMax - me.absMin) * 100
-*/
+            if (countyObj.forecast < 0) {
+              countyObj.forecast = 0;
+            }
             return countyObj['Country/Region'] +
             '<br/>' + 'New Cases: ' + countyObj.actualDelta + ' (Forecasted: ' + countyObj.forecastDelta + ')' +
             '<br/>' + 'Total Cases: ' + countyObj.actual + ' (Forecasted: ' + countyObj.forecast + ')'

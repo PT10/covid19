@@ -23,7 +23,7 @@ export class UsDeathCasesComponent extends BaseCases {
     protected route: ActivatedRoute,
     protected config: ConfigService) {
     super(dataService, eventService, populationService, route, config);
-    this.chartTitle = 'Covid-19 daily US death trends';
+    this.chartTitle = 'Covid-19 daily US death trends by county';
     this.fileNameTemplate = this.dataFolder + '/result_' + this.fileNameToken + '_time_series_covid19_deaths_US_';
   }
 
@@ -63,7 +63,6 @@ export class UsDeathCasesComponent extends BaseCases {
       roam: true,
       map: 'USA',
       scaleLimit: {min: 2},
-      zoom: 5,
       itemStyle: {
         emphasis: {
           label: {
@@ -78,17 +77,25 @@ export class UsDeathCasesComponent extends BaseCases {
     // Set Position of US map first time as it aligns to global center by default
     if (this.firstTimeAccess) {
       this.chartOption.series[0]['center'] = [-100, 36]
+      this.chartOption.series[0]['zoom'] = 5;
       this.firstTimeAccess = false;
     }
     
     this.chartOption.tooltip = {
         trigger: 'item',
         formatter: function(params) {
-          const countyObj = me.seriesData.find(d => {
+          let countyObj = me.seriesData.find(d => {
             return d['Admin2'] + ' (' + d['Province_State'] + ')' === params['name']
           });
 
           if (countyObj) {
+            countyObj = JSON.parse(JSON.stringify(countyObj));
+            if (countyObj.forecastDelta < 0) {
+              countyObj.forecastDelta = 0;
+            }
+            if (countyObj.forecast < 0) {
+              countyObj.forecast = 0;
+            }
             return countyObj['Admin2'] + '(' + countyObj['Province_State'] + ')' + 
             '<br/>' + 'New Deaths: ' + countyObj.actualDelta + ' (Forecasted: ' + countyObj.forecastDelta + ')' +
             '<br/>' + 'Total Deaths: ' + countyObj.actual + ' (Forecasted: ' + countyObj.forecast + ')'

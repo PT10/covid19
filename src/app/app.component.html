@@ -1,32 +1,49 @@
 <div class="container-fluid">
-  <nav class="navbar navbar-expand-lg navbar-dark">
-    <a class="navbar-brand" href="#">
+  <nav class="navbar navbar-expand-lg navbar-dark" style="border-bottom: 3px solid #E04E39;">
+    <a class="navbar-brand">
       <img src="assets/brand-light.svg" height="30px" width="150px">
     </a> 
-    <button class="navbar-toggler" type="button" data-toggle="collapse"   data-target="#target" aria-controls="target" aria-expanded="false" aria-label="Toggle navigation" (click)="isShown = !isShown" >
+    <!-- <button class="navbar-toggler" type="button" data-toggle="collapse"   
+      data-target="#target" aria-controls="target" aria-expanded="false" 
+      aria-label="Toggle navigation" >
       <span class="navbar-toggler-icon"></span>
     </button>
 
-    <div class="collapse navbar-collapse" [ngClass]="{ 'show': isShown }" id="target">
+    <div class="collapse navbar-collapse"  id="target">
       <ul class="navbar-nav mr-auto">
-        <li [ngClass]="view === 'usActive' ? 'nav-item active' : 'nav-item'">
-          <a class="nav-link" href="#" (click)="isShown = !isShown; view = 'usActive';">US active</a>
-        </li>
-        <li [ngClass]="view === 'usDeaths' ? 'nav-item active' : 'nav-item'">
-          <a class="nav-link" href="#" (click)="view = 'usDeaths'; isShown = !isShown">US deaths</a>
-        </li>
-        <li [ngClass]="view === 'worldActive' ? 'nav-item active' : 'nav-item'">
-          <a class="nav-link" href="#" (click)="view = 'worldActive'; isShown = !isShown">Worldwide active</a>
+        <li [ngClass]="view === 'worldConfirmed' ? 'nav-item active' : 'nav-item'">
+          <a class="nav-link" href="#" (click)="view = 'worldConfirmed'">World confirmed</a>
         </li>
         <li [ngClass]="view === 'worldDeaths' ? 'nav-item active' : 'nav-item'">
-          <a class="nav-link" href="#" (click)="view = 'worldDeaths'; isShown = !isShown">Worldwide deaths</a>
+          <a class="nav-link" href="#" (click)="view = 'worldDeaths'">World deaths</a>
+        </li>
+        <li [ngClass]="view === 'usConfirmed' ? 'nav-item active' : 'nav-item'">
+          <a class="nav-link" href="#" (click)="view = 'usConfirmed';">US confirmed</a>
+        </li>
+        <li [ngClass]="view === 'usDeaths' ? 'nav-item active' : 'nav-item'">
+          <a class="nav-link" href="#" (click)="view = 'usDeaths'">US deaths</a>
         </li>
       </ul>
-    </div>
+    </div> -->
+    <ul class="nav" style="padding-top: 10px">
+      <li [ngClass]="view === 'worldConfirmed' ? 'nav-item active' : 'nav-item'">
+        <a class="nav-link" href="#" (click)="view = 'worldConfirmed'">World confirmed</a>
+      </li>
+      <li [ngClass]="view === 'worldDeaths' ? 'nav-item active' : 'nav-item'">
+        <a class="nav-link" href="#" (click)="view = 'worldDeaths'">World deaths</a>
+      </li>
+      <li [ngClass]="view === 'usConfirmed' ? 'nav-item active' : 'nav-item'">
+        <a class="nav-link" href="#" (click)="view = 'usConfirmed';">US confirmed</a>
+      </li>
+      <li [ngClass]="view === 'usDeaths' ? 'nav-item active' : 'nav-item'">
+        <a class="nav-link" href="#" (click)="view = 'usDeaths'">US deaths</a>
+      </li>
+    </ul>
   </nav>
+  
   <app-progress-bar [hidden]="mapRegistered && configLoaded"></app-progress-bar>
   <div *ngIf="mapRegistered && configLoaded" class='container-fluid'>
-    <div class="row" style="margin-top: 1px">
+    <div class="row" style="margin-top: 10px">
       <div class="col-sm text-right">
           <app-slider thumbLanel 
             [numDays]="numDaysOnSlider" 
@@ -36,14 +53,16 @@
           ></app-slider>
       </div>
     </div>
-    <div class="row" style="font-size: 12px; margin: 20px 0;">
+    <div class="row" style="padding-top: 10px">
       <div class="col">
           <div class="text-center charttitle">{{chartTitle}}</div>
       </div>
+    </div>
+    <div class="row justify-content-end" style="margin-top: 10px;font-size: 12px;">
       <div class="col-md-auto">
-        <span>As comapred to past trend: </span>
+        <span>As compared to past trend: </span>
       </div>
-      <div class="col-sm-auto">
+      <div class="col-md-auto">
         <div class="row">
           <div class="col-sm-auto">
             <button type="button" class="legend-button" style="background: green;"></button>
@@ -62,11 +81,11 @@
     </div>
     <div class="row justify-content-center" style="height: 75%;">
       <div class="col-sm-11 text-center" style="background: #063f6d;">
-        <div *ngIf="view === 'usActive'">
-          <app-us-active-cases [selectedDate]="selectedDate" [numDaysOnSlider]="numDaysOnSlider" (chartTitleChange)="chartTitle = $event"></app-us-active-cases>
+        <div *ngIf="view === 'usConfirmed'">
+          <app-us-confirmed-cases [selectedDate]="selectedDate" [numDaysOnSlider]="numDaysOnSlider" (chartTitleChange)="chartTitle = $event"></app-us-confirmed-cases>
         </div>
-        <div *ngIf="view === 'worldActive'">
-          <app-world-active-cases [selectedDate]="selectedDate" [numDaysOnSlider]="numDaysOnSlider" (chartTitleChange)="chartTitle = $event"></app-world-active-cases>
+        <div *ngIf="view === 'worldConfirmed'">
+          <app-world-confirmed-cases [selectedDate]="selectedDate" [numDaysOnSlider]="numDaysOnSlider" (chartTitleChange)="chartTitle = $event"></app-world-confirmed-cases>
         </div>
         <div *ngIf="view === 'usDeaths'">
           <app-us-death-cases [selectedDate]="selectedDate" [numDaysOnSlider]="numDaysOnSlider" (chartTitleChange)="chartTitle = $event"></app-us-death-cases>
@@ -76,16 +95,6 @@
         </div>
       </div>
     </div>
-    <!-- <div class="row" style="margin-top: 1px">
-      <div class="col-sm text-center">
-          <app-slider thumbLanel 
-            [numDays]="numDaysOnSlider" 
-            [(selectedDate)]="selectedDate" 
-            [firstDay]="firstDay"
-            [lastDay]="lastDay"
-          ></app-slider>
-      </div>
-    </div> -->
     <div class="row" style="margin-top: 30px">
       <span style="font-size: 12px;">
         <i>Methodology: Each day we apply our forecast models on the updated data provided by

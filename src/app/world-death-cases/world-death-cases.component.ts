@@ -90,11 +90,18 @@ export class WorldDeathCasesComponent extends BaseCases {
     this.chartOption.tooltip = {
         trigger: 'item',
         formatter: function(params) {
-          const countyObj = me.seriesData.find(d => {
+          let countyObj = me.seriesData.find(d => {
             return d['Country/Region'] === params['name']
           });
 
           if (countyObj) {
+            countyObj = JSON.parse(JSON.stringify(countyObj));
+            if (countyObj.forecastDelta < 0) {
+              countyObj.forecastDelta = 0;
+            }
+            if (countyObj.forecast < 0) {
+              countyObj.forecast = 0;
+            }
             return countyObj['Country/Region'] +
             '<br/>' + 'New Deaths: ' + countyObj.actualDelta + ' (Forecasted: ' + countyObj.forecastDelta + ')' +
             '<br/>' + 'Total Deaths: ' + countyObj.actual + ' (Forecasted: ' + countyObj.forecast + ')'

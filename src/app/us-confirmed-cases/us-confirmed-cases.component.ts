@@ -8,11 +8,11 @@ import { ConfigService } from '../services/config.service';
 
 
 @Component({
-  selector: 'app-us-active-cases',
-  templateUrl: './us-active-cases.component.html',
-  styleUrls: ['./us-active-cases.component.css']
+  selector: 'app-us-confirmed-cases',
+  templateUrl: './us-confirmed-cases.component.html',
+  styleUrls: ['./us-confirmed-cases.component.css']
 })
-export class UsActiveCasesComponent extends BaseCases {
+export class UsconfirmedCasesComponent extends BaseCases {
 
   //usMap = this.processCountyNames();
   relocatedCounties;
@@ -25,7 +25,7 @@ export class UsActiveCasesComponent extends BaseCases {
     protected route: ActivatedRoute,
     protected config: ConfigService) {
     super(dataService, eventService, populationService, route, config);
-    this.chartTitle = 'Covid-19 daily US active trends';
+    this.chartTitle = 'Covid-19 daily US confirmed trends by county';
     this.fileNameTemplate = this.dataFolder + 'result_' + this.fileNameToken + '_time_series_covid19_confirmed_US_';
   }
 
@@ -65,7 +65,6 @@ export class UsActiveCasesComponent extends BaseCases {
       roam: true,
       map: 'USA',
       scaleLimit: {min: 2},
-      zoom: 5,
       itemStyle: {
         emphasis: {
           label: {
@@ -80,17 +79,25 @@ export class UsActiveCasesComponent extends BaseCases {
     // Set Position of US map first time as it aligns to global center by default
     if (this.firstTimeAccess) {
       this.chartOption.series[0]['center'] = [-100, 36]
+      this.chartOption.series[0]['zoom'] = 5;
       this.firstTimeAccess = false;
     }
     
     this.chartOption.tooltip = {
         trigger: 'item',
         formatter: function(params) {
-          const countyObj = me.seriesData.find(d => {
+          let countyObj = me.seriesData.find(d => {
             return d['Admin2'] + ' (' + d['Province_State'] + ')' === params['name']
           });
 
           if (countyObj) {
+            countyObj = JSON.parse(JSON.stringify(countyObj));
+            if (countyObj.forecastDelta < 0) {
+              countyObj.forecastDelta = 0;
+            }
+            if (countyObj.forecast < 0) {
+              countyObj.forecast = 0;
+            }
             return countyObj['Admin2'] + '(' + countyObj['Province_State'] + ')' + 
             '<br/>' + 'New Cases: ' + countyObj.actualDelta + ' (Forecasted: ' + countyObj.forecastDelta + ')' +
             '<br/>' + 'Total Cases: ' + countyObj.actual + ' (Forecasted: ' + countyObj.forecast + ')'

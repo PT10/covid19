@@ -3,7 +3,8 @@
 
 body {
   color: white !important;
-  background-color: #003865
+  background-color: #003865;
+  font-family: 'Roboto', sans-serif;
 }
 
 p {
@@ -14,13 +15,21 @@ p {
   display: none;
 }
 
+.navbar-nav > .nav-item.active > .nav-link{
+  color: #E04E39 !important;
+}
+
 .nav-link:hover {
   color: #E04E39 !important;
 }
 
-li.active a {
+.nav > .nav-item.active > .nav-link{
   color: #E04E39 !important;
 }
+
+/* li.active a {
+  color: #E04E39 !important;
+} */
 
 .demo-chart {
   /* height: 500px; */

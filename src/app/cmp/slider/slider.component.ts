@@ -49,12 +49,7 @@ export class SliderComponent implements OnInit {
     this.selectedDateIndex = Math.round((this.numDays - (diffTime / (1000 * 60 * 60 * 24)))); //this.defaultSelectedIndex; //this.numDays;
 
     this.firstDay = Utils.formatDate(this.firstDay);
-    console.log("Selected date in init: " + this.selectedDate);
-    console.log("Last date in init: " + this.lastDay);
-    console.log("numDays in init: " + this.numDays);
-    console.log("Selected Index in init: " + this.selectedDateIndex);
     this.eventService.getObserver(EventNames.NAVIGATE_BACK).subscribe(data => {
-      console.log("Selected Index: " + this.selectedDateIndex);
       if (this.selectedDateIndex > 1) {
         this.selectedDateIndex--;
         this.onDateChanged();
@@ -78,7 +73,6 @@ export class SliderComponent implements OnInit {
     const tempDate: Date = new Date(this.lastDay);
     tempDate.setDate(this.lastDay.getDate() - diff);
     this.selectedDate = tempDate;
-    console.log("Selected date changed to: " + this.selectedDate);
     
     this.selectedDateChange.emit(this.selectedDate);
     $('.mat-slider-thumb-label-text').text(Utils.getDateMonth(this.selectedDate));
@@ -97,6 +91,19 @@ export class SliderComponent implements OnInit {
     while(this.selectedDateIndex !== this.numDays && this.playing) {
       this.selectedDateIndex++;
       this.onDateChanged();
+
+      // onDateChange() will trigger chart loading for new date
+      // Wait until the chart is loaded completely and then wait for the delay amount
+      // until the slider moves forward
+      let chartLoadingFinished = false;
+      this.eventService.getObserver(EventNames.CHART_LOAING_COMPLETE).subscribe(data => {
+        chartLoadingFinished = true;
+      });
+
+      while (!chartLoadingFinished && this.playing) {
+        await this.delay(500);
+      }
+
       await this.delay(this.delayAmt);
     }
 

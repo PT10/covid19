@@ -1,6 +1,6 @@
 {
     "fileNameToken": "delta2",
-    "defaultView": "usActive",
+    "defaultView": "worldConfirmed",
     "numDaysOnSlider": 15,
     "numDaysInFurure": 0
 }

@@ -41,12 +41,12 @@ export abstract class BaseCases implements OnInit, AfterViewInit, OnChanges {
   // Used by US map components to set zoom for the first time each map is loaded
   firstTimeAccess = true;
 
+  directLink = false;
+
   // Used for falling back to data availability on landing page
   static initialLoading = true;
 
-  directLink = false;
-
-  playStarted: boolean;
+  static playStarted: boolean;
 
   constructor(protected dataService: RawDataProviderService, 
     protected eventService: AppEventService,
@@ -72,9 +72,14 @@ export abstract class BaseCases implements OnInit, AfterViewInit, OnChanges {
         this.eventService.publish(EventNames.INITIAL_LOADING_COMPLETED);
       }
       BaseCases.initialLoading = false;
+
+      this.changeChartTitle();
+
       this.processData(data);
       this.initChart();
     }, error => {
+      this.changeChartTitle();
+
       if (BaseCases.initialLoading && !this.directLink) {
         if (this.numDaysOnSlider-- == 0) {
           BaseCases.initialLoading = false;
@@ -82,7 +87,7 @@ export abstract class BaseCases implements OnInit, AfterViewInit, OnChanges {
         } else {
           this.eventService.publish(EventNames.NAVIGATE_BACK);
         }
-      } else if (this.playStarted) {
+      } else if (BaseCases.playStarted) {
         this.eventService.publish(EventNames.PLAY_STATUS_CHANGED, {started: false});
         this.eventService.publish(EventNames.NAVIGATE_BACK);
       } 
@@ -100,6 +105,8 @@ export abstract class BaseCases implements OnInit, AfterViewInit, OnChanges {
     this.setChartOptions();
     this.chartInstance.setOption(this.chartOption);
     this.inProgress = false;
+
+    this.eventService.publish(EventNames.CHART_LOAING_COMPLETE);
   }
 
   ngOnInit() {
@@ -108,7 +115,7 @@ export abstract class BaseCases implements OnInit, AfterViewInit, OnChanges {
     });
 
     this.eventService.getObserver(EventNames.PLAY_STATUS_CHANGED).subscribe(data => {
-      this.playStarted = data.started;
+      BaseCases.playStarted = data.started;
     });
   }
 
@@ -119,9 +126,6 @@ export abstract class BaseCases implements OnInit, AfterViewInit, OnChanges {
   ngOnChanges() {
     this.clearError();
     this.getData();
-    this.chartTitleChange.emit(this.chartTitle + ' (' + 
-      Utils.formatDate(this.selectedDate) + ')');
-    
   }
 
   getChartOptions(): EChartOption {
@@ -144,9 +148,10 @@ export abstract class BaseCases implements OnInit, AfterViewInit, OnChanges {
         min: me.maxVal,
         max: me.minVal,
         //itemHeight: 200,
+        itemWidth: 10,
         textGap: 20,
         inRange: {
-            color: ['red', 'orange', 'yellow', 'green'].reverse()
+            color: ['red', 'yellow', 'green'].reverse()
         },
         //text: ['High', 'Low'],
         align: 'bottom',
@@ -156,6 +161,11 @@ export abstract class BaseCases implements OnInit, AfterViewInit, OnChanges {
         calculable: true
       }]
     }
+  }
+
+  changeChartTitle() {
+    this.chartTitleChange.emit(this.chartTitle + ' (' + 
+      Utils.formatDate(this.selectedDate) + ')');
   }
 
   clearError() {

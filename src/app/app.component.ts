@@ -3,7 +3,6 @@ import { RawDataProviderService } from './services/raw-data-provider.service';
 import { usStateCodes } from './map-provider.service';
 import * as echarts from 'echarts/lib/echarts';
 import { ActivatedRoute } from '@angular/router';
-import { s } from '@angular/core/src/render3';
 import { ConfigService } from './services/config.service';
 import { AppEventService } from './events/app-event.service';
 import { EventNames } from './events/EventNames';
@@ -41,7 +40,7 @@ export class AppComponent implements OnInit  {
     });
     this.eventService.getObserver(EventNames.CONFIG_LOADED).subscribe(() => {
       this.onConfigLoad();
-    })
+    });
   }
 
   onConfigLoad() {
@@ -80,8 +79,6 @@ export class AppComponent implements OnInit  {
         this.mapRegistered = true;
       });
       
-    }, error => {
-
     });
   }
 
