@@ -40,13 +40,26 @@ p {
   background-color: #E04E39 !important;
 }
 
+.mat-progress-bar-buffer {
+  background: #0A4C95;
+}
+
+.mat-progress-bar {
+  border-radius: 2px;
+}
+
+.mat-progress-spinner circle, .mat-spinner circle {
+  stroke: #E04E39 !important;
+}
+
 .mat-slider.mat-slider-horizontal {
   width: 20%;
 }
 
-.mat-progress-spinner circle, .mat-spinner circle {
-  stroke: red;
-}
+/* .mat-slider-ticks {
+  background-image: 
+    repeating-linear-gradient(to right, yellow, yellow 2px,transparent 0,transparent) !important;
+} */
 
 ::-webkit-scrollbar {
   width: 8px;

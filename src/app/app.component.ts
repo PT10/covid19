@@ -24,6 +24,7 @@ export class AppComponent implements OnInit  {
   mapRegistered = false;
   configLoaded: boolean;
   isShown;
+  chartLoadingInProgress = false;
 
   constructor(private dataService: RawDataProviderService, 
     private route: ActivatedRoute,
@@ -40,6 +41,9 @@ export class AppComponent implements OnInit  {
     });
     this.eventService.getObserver(EventNames.CONFIG_LOADED).subscribe(() => {
       this.onConfigLoad();
+    });
+    this.eventService.getObserver(EventNames.CHART_LOAING_COMPLETE).subscribe(() => {
+      this.chartLoadingInProgress = false;
     });
   }
 

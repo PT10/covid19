@@ -77,9 +77,10 @@ export abstract class BaseCases implements OnInit, AfterViewInit, OnChanges {
 
       this.processData(data);
       this.initChart();
+      this.eventService.publish(EventNames.CHART_LOAING_COMPLETE);
     }, error => {
       this.changeChartTitle();
-
+      this.eventService.publish(EventNames.CHART_LOAING_COMPLETE);
       if (BaseCases.initialLoading && !this.directLink) {
         if (this.numDaysOnSlider-- == 0) {
           BaseCases.initialLoading = false;
@@ -105,8 +106,6 @@ export abstract class BaseCases implements OnInit, AfterViewInit, OnChanges {
     this.setChartOptions();
     this.chartInstance.setOption(this.chartOption);
     this.inProgress = false;
-
-    this.eventService.publish(EventNames.CHART_LOAING_COMPLETE);
   }
 
   ngOnInit() {

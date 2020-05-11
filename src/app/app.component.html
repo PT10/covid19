@@ -47,15 +47,23 @@
       <div class="col-sm text-right">
           <app-slider thumbLanel 
             [numDays]="numDaysOnSlider" 
-            [(selectedDate)]="selectedDate" 
+            (selectedDateChange)="chartLoadingInProgress = true; selectedDate = $event"
+            [selectedDate]="selectedDate"
             [firstDay]="firstDay"
             [lastDay]="lastDay"
           ></app-slider>
+          <!-- [(selectedDate)]="selectedDate"  -->
       </div>
     </div>
-    <div class="row" style="padding-top: 10px">
+    <div class="row text-center" style="padding-top: 10px">
       <div class="col">
-          <div class="text-center charttitle">{{chartTitle}}</div>
+          <div class="charttitle" >
+            {{chartTitle}}
+            <span style="display: inline-block; width: 20px; height: 20px;">
+              <mat-progress-spinner *ngIf="chartLoadingInProgress" [ngStyle]="{'display': 'inline-block'}" 
+                mode="indeterminate" [diameter]="20"></mat-progress-spinner>
+            </span>
+          </div>
       </div>
     </div>
     <div class="row justify-content-end" style="margin-top: 10px;font-size: 12px;">
