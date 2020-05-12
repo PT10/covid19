@@ -13,7 +13,6 @@ import { MatSliderModule } from '@angular/material/slider';
 import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 import { UsconfirmedCasesComponent } from './us-confirmed-cases/us-confirmed-cases.component';
 import { WorldConfirmedCasesComponent } from './world-confirmed-cases/world-confirmed-cases.component';
-import { WorldJsonProviderService } from './world-json-provider.service';
 import { UsDeathCasesComponent } from './us-death-cases/us-death-cases.component';
 import { WorldDeathCasesComponent } from './world-death-cases/world-death-cases.component';
 import { RawDataProviderService } from './services/raw-data-provider.service';
@@ -28,9 +27,10 @@ import { ConfigService } from './services/config.service';
 @NgModule({
   imports:      [ BrowserModule, FormsModule, HttpModule, NgxEchartsModule,  RouterModule.forRoot([]),
     HttpClientModule, MatSliderModule, MatProgressSpinnerModule, MatProgressBarModule ],
-  declarations: [ AppComponent, HelloComponent, UsconfirmedCasesComponent, WorldConfirmedCasesComponent, UsDeathCasesComponent, WorldDeathCasesComponent, ProgressBarComponent, SliderComponent],
+  declarations: [ AppComponent, HelloComponent, UsconfirmedCasesComponent, WorldConfirmedCasesComponent, 
+    UsDeathCasesComponent, WorldDeathCasesComponent, ProgressBarComponent, SliderComponent],
   bootstrap:    [ AppComponent ],
-  providers: [MapProviderService, WorldJsonProviderService, RawDataProviderService, AppEventService, FetchPopulationService,
-    ConfigService]
+  providers: [MapProviderService, AppEventService, FetchPopulationService,
+    ConfigService, RawDataProviderService]
 })
 export class AppModule { }

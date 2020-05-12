@@ -26,7 +26,7 @@ export class UsconfirmedCasesComponent extends BaseCases {
     protected config: ConfigService) {
     super(dataService, eventService, populationService, route, config);
     this.chartTitle = 'Covid-19 daily US confirmed trends by county';
-    this.fileNameTemplate = this.dataFolder + 'result_' + this.fileNameToken + '_time_series_covid19_confirmed_US_';
+    this.fileNameTemplate = this.dataFolder + '/result_' + this.fileNameToken + '_time_series_covid19_confirmed_US_';
   }
 
   processData(_data: any) {

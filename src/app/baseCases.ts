@@ -24,7 +24,7 @@ export abstract class BaseCases implements OnInit, AfterViewInit, OnChanges {
   fileNameToken = 'delta2';
   //dayIndex = 7;
 
-  dataFolder = "data/"
+  dataFolder = "data"
 
   @Input()
   selectedDate: Date;

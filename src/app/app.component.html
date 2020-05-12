@@ -41,8 +41,8 @@
     </ul>
   </nav>
   
-  <app-progress-bar [hidden]="mapRegistered && configLoaded"></app-progress-bar>
-  <div *ngIf="mapRegistered && configLoaded" class='container-fluid'>
+  <app-progress-bar [hidden]="configLoaded"></app-progress-bar>
+  <div *ngIf="configLoaded" class='container-fluid'>
     <div class="row" style="margin-top: 10px">
       <div class="col-sm text-right">
           <app-slider thumbLanel 
@@ -89,17 +89,21 @@
     </div>
     <div class="row justify-content-center" style="height: 75%;">
       <div class="col-sm-11 text-center" style="background: #063f6d;">
-        <div *ngIf="view === 'usConfirmed'">
-          <app-us-confirmed-cases [selectedDate]="selectedDate" [numDaysOnSlider]="numDaysOnSlider" (chartTitleChange)="chartTitle = $event"></app-us-confirmed-cases>
-        </div>
         <div *ngIf="view === 'worldConfirmed'">
-          <app-world-confirmed-cases [selectedDate]="selectedDate" [numDaysOnSlider]="numDaysOnSlider" (chartTitleChange)="chartTitle = $event"></app-world-confirmed-cases>
-        </div>
-        <div *ngIf="view === 'usDeaths'">
-          <app-us-death-cases [selectedDate]="selectedDate" [numDaysOnSlider]="numDaysOnSlider" (chartTitleChange)="chartTitle = $event"></app-us-death-cases>
+          <app-progress-bar [hidden]="globeMapRegistered"></app-progress-bar>
+          <app-world-confirmed-cases *ngIf="globeMapRegistered" [selectedDate]="selectedDate" [numDaysOnSlider]="numDaysOnSlider" (chartTitleChange)="chartTitle = $event"></app-world-confirmed-cases>
         </div>
         <div *ngIf="view === 'worldDeaths'">
-          <app-world-death-cases [selectedDate]="selectedDate" [numDaysOnSlider]="numDaysOnSlider" (chartTitleChange)="chartTitle = $event"></app-world-death-cases>
+          <app-progress-bar [hidden]="globeMapRegistered"></app-progress-bar>
+          <app-world-death-cases *ngIf="globeMapRegistered" [selectedDate]="selectedDate" [numDaysOnSlider]="numDaysOnSlider" (chartTitleChange)="chartTitle = $event"></app-world-death-cases>
+        </div>
+        <div *ngIf="view === 'usConfirmed'">
+          <app-progress-bar [hidden]="usMapRegistered"></app-progress-bar>
+          <app-us-confirmed-cases *ngIf="usMapRegistered" [selectedDate]="selectedDate" [numDaysOnSlider]="numDaysOnSlider" (chartTitleChange)="chartTitle = $event"></app-us-confirmed-cases>
+        </div>
+        <div *ngIf="view === 'usDeaths'">
+          <app-progress-bar [hidden]="usMapRegistered"></app-progress-bar>
+          <app-us-death-cases *ngIf="usMapRegistered" [selectedDate]="selectedDate" [numDaysOnSlider]="numDaysOnSlider" (chartTitleChange)="chartTitle = $event"></app-us-death-cases>
         </div>
       </div>
     </div>

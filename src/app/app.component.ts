@@ -21,7 +21,8 @@ export class AppComponent implements OnInit  {
   firstDay: Date;
   numDaysOnSlider = 15; // Number of days user can navigate on the slider
   numDaysInFurure = 0;  // To be added in today's date to find last day
-  mapRegistered = false;
+  globeMapRegistered = false;
+  usMapRegistered = false;
   configLoaded: boolean;
   isShown;
   chartLoadingInProgress = false;
@@ -70,19 +71,19 @@ export class AppComponent implements OnInit  {
   }
 
   ngOnInit() {
+    const globeUrl = 'assets/globeGeo.json'
+    this.dataService.sendGetRequest(globeUrl).subscribe(data => {
+      const globeMapJSon = data;
+      echarts.registerMap('world', globeMapJSon);
+
+      this.globeMapRegistered = true;
+    });
+
     const usUrl = 'assets/usGeo.json';
     this.dataService.sendGetRequest(usUrl).subscribe(data => {
       const usMapJSon = this.processCountyNames(data);
       echarts.registerMap('USA', usMapJSon);
-
-      const globeUrl = 'assets/globeGeo.json'
-      this.dataService.sendGetRequest(globeUrl).subscribe(data => {
-        const globeMapJSon = data;
-        echarts.registerMap('world', globeMapJSon);
-
-        this.mapRegistered = true;
-      });
-      
+      this.usMapRegistered = true;
     });
   }
 

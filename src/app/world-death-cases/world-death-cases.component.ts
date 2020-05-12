@@ -1,10 +1,11 @@
 import { Component } from '@angular/core';
 import { BaseCases } from '../baseCases';
-import { RawDataProviderService } from '../services/raw-data-provider.service';
+
 import { AppEventService } from '../events/app-event.service';
 import { FetchPopulationService } from '../services/fetch-population.service';
 import { ActivatedRoute } from '@angular/router';
 import { ConfigService } from '../services/config.service';
+import { RawDataProviderService } from '../services/raw-data-provider.service';
 
 @Component({
   selector: 'app-world-death-cases',
