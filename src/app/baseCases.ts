@@ -81,7 +81,7 @@ export abstract class BaseCases implements OnInit, AfterViewInit, OnChanges {
 
   ngOnInit() {
     $(window).resize((params) => {
-      if (this.drilldownLineChartInstance) {
+      if (this.selectedRegion) {
         this.drilldownLineChartInstance.resize();
       } else {
         this.chartInstance.resize();
@@ -241,7 +241,24 @@ export abstract class BaseCases implements OnInit, AfterViewInit, OnChanges {
 
    const seriesData = [];
    for (let i = 0; i < actual.length; i++) {
-     seriesData.push( {
+    seriesData.push( {
+        actual: actual[i],
+        lower: lowerbaseline[i],
+        upper: upperBaseline[i]
+     });
+   }
+
+   const seriesDatahistorical = [];
+   for (let i = 0; i < actualHistorical.length; i++) {
+    seriesDatahistorical.push( {
+        actual: actual[i],
+        lower: lowerbaseline[i],
+        upper: upperBaseline[i]
+     });
+   }
+   const seriesDataForecast = [];
+   for (let i = 0; i < actual.length; i++) {
+    seriesDataForecast.push( {
         actual: actual[i],
         lower: lowerbaseline[i],
         upper: upperBaseline[i]
@@ -256,12 +273,12 @@ export abstract class BaseCases implements OnInit, AfterViewInit, OnChanges {
             const lower = params.find(p => p.seriesName === 'Lower');
             const upper = params.find(p => p.seriesName === 'Upper');
 
-            const actualSeriesName = params[0].dataIndex < 5 ? 'Actual' : 'Forecast';
+            const actualSeriesName = params[0].dataIndex < actualHistorical.length ? 'Actual' : 'Forecast';
             let data = params[0]['axisValue'] + '<br/>' + 
               actualSeriesName + ': ' + Math.round(actual['value']) + '<br/>';
 
-            if (params[0].dataIndex >= 5) {
-              data += upper['seriesName'] + ': ' + (Math.round(upper['value']) + Math.round(lower['value'])) + '<br/>' +
+            if (params[0].dataIndex >= (actualHistorical.length)) {
+              data += upper['seriesName'] + ': ' + Math.round(upper['value'] + Math.round(lower['value'])) + '<br/>' +
                 lower['seriesName'] + ': ' + Math.round(lower['value']) + '<br/>'
             }
 
@@ -312,29 +329,68 @@ export abstract class BaseCases implements OnInit, AfterViewInit, OnChanges {
               opacity: 0
           },
           areaStyle: {
-              color: '#ccc'
+              color: 'yellow',
+              opacity: 0.2
           },
           stack: 'confidence-band',
           symbol: 'none'
       }, {
           type: 'line',
           name: 'Actual',
-          data: seriesData.map(d => d.actual),
+          data: seriesDatahistorical.map(d => d.actual),
           hoverAnimation: false,
           symbolSize: 6,
           itemStyle: {
               color: '#c23531'
           },
-          showSymbol: false
-      }
-      ]
+          showSymbol: false,
+          markPoint: {
+            symbol: 'circle',
+            symbolSize: 10,
+            label: {
+              formatter: 'Actual',
+              position: [0, 10],
+              color: 'white'
+            },
+            data: [{
+              type: 'max', name: 'Max' 
+            }]
+          }
+      }, {
+        type: 'line',
+        name: 'Actual',
+        data: seriesDataForecast.map(d => d.actual),
+        hoverAnimation: false,
+        symbolSize: 6,
+        itemStyle: {
+            color: '#c23531'
+        },
+        lineStyle: {
+          type: 'dotted'
+        },
+        showSymbol: false,
+        markPoint: {
+          symbol: 'circle',
+          symbolSize: 10,
+          label: {
+            formatter: 'Forecasted',
+            position: [0, 10],
+            color: 'white'
+          },
+          data: [{
+            type: 'max', name: 'Max' 
+          }]
+        }
+      }]
     }
-
   }
 
   drilldownBackClicked(event) {
-    this.selectedRegion = ''; 
+    this.selectedRegion = undefined; 
     this.errorMessage = undefined;
+    this.ref.detectChanges();
+    this.chartInstance.resize();
+
   }
 
   changeChartTitle() {
