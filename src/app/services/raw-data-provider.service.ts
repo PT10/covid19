@@ -6,7 +6,7 @@ import 'rxjs/Rx';
 @Injectable()
 export class RawDataProviderService {
 
-  constructor(protected httpConnection: Http) { }
+  constructor(private httpConnection: Http) { }
 
   sendGetRequest(_url: string, _headers?: {}): Observable<any> {
     let url =_url

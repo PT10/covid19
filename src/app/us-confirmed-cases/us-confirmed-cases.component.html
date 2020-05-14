@@ -7,9 +7,15 @@
     </div>
   </div>
 </ng-container>
-<div #charts [ngClass]="errorMessage ? 'hidden': 'demo-chart'" style="height: 100%;"></div>
-
-
-<!-- <div class="loading-indicator">
-  <mat-progress-spinner *ngIf="inProgress" mode="indeterminate" strokeWidth="4" diameter="50"></mat-progress-spinner>
-</div> -->
+<div #charts [ngClass]="errorMessage || selectedRegion ? 'hidden': 'demo-chart'" style="height: 100%;"></div>
+<div *ngIf="selectedRegion" class="row text-right">
+  <div class="col">
+    <button class="btn btn-light btn-sm button-style" style=" margin: 20px" type="button" 
+      (click)="drilldownBackClicked($event)">Back</button>
+  </div>
+</div>
+<div *ngIf="selectedRegion && !errorMessage">
+  <label>{{selectedRegion}} forecast for next week</label>
+</div>
+<app-progress-bar [hidden]="!drilldownInProgress || errorMessage"></app-progress-bar>
+<div #charts2 [ngClass]="selectedRegion && !drilldownInProgress && !errorMessage ? '': 'hidden'" style="height: 80%;"></div>

@@ -27,10 +27,9 @@ import { ConfigService } from './services/config.service';
 @NgModule({
   imports:      [ BrowserModule, FormsModule, HttpModule, NgxEchartsModule,  RouterModule.forRoot([]),
     HttpClientModule, MatSliderModule, MatProgressSpinnerModule, MatProgressBarModule ],
-  declarations: [ AppComponent, HelloComponent, UsconfirmedCasesComponent, WorldConfirmedCasesComponent, 
-    UsDeathCasesComponent, WorldDeathCasesComponent, ProgressBarComponent, SliderComponent],
+  declarations: [ AppComponent, HelloComponent, UsconfirmedCasesComponent, WorldConfirmedCasesComponent, UsDeathCasesComponent, WorldDeathCasesComponent, ProgressBarComponent, SliderComponent],
   bootstrap:    [ AppComponent ],
-  providers: [MapProviderService, AppEventService, FetchPopulationService,
-    ConfigService, RawDataProviderService]
+  providers: [MapProviderService, RawDataProviderService, AppEventService, FetchPopulationService,
+    ConfigService]
 })
 export class AppModule { }

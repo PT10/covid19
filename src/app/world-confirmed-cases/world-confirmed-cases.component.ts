@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectorRef } from '@angular/core';
 import { BaseCases } from '../baseCases';
 import { RawDataProviderService } from '../services/raw-data-provider.service';
 import { AppEventService } from '../events/app-event.service';
@@ -24,11 +24,14 @@ export class WorldConfirmedCasesComponent extends BaseCases {
     protected eventService: AppEventService,
     protected populationService: FetchPopulationService,
     protected route: ActivatedRoute,
-    protected config: ConfigService) {
-    super(dataService, eventService, populationService, route, config);
-    this.chartTitle = 'Covid-19 daily world confirmed trends';
+    protected config: ConfigService,
+    protected ref: ChangeDetectorRef) {
+      super(dataService, eventService, populationService, route, config,ref);
 
-    this.fileNameTemplate = this.dataFolder + '/result_' + this.fileNameToken + '_time_series_covid19_confirmed_global_';
+      this.mapType = "globe";
+      this.chartType = "confirmed";
+      this.chartTitle = 'Covid-19 daily world confirmed trends';
+      this.fileNameTemplate = this.dataFolder + '/result_' + this.fileNameToken + '_time_series_covid19_confirmed_global_';
   }
 
   ngOnInit() {
@@ -111,9 +114,6 @@ export class WorldConfirmedCasesComponent extends BaseCases {
             return countyObj['Country/Region'] +
             '<br/>' + 'New Cases: ' + countyObj.actualDelta + ' (Forecasted: ' + countyObj.forecastDelta + ')' +
             '<br/>' + 'Total Cases: ' + countyObj.actual + ' (Forecasted: ' + countyObj.forecast + ')'
-            
-          //  '<br/>' + 'Cases: ' + countyObj.cases + 
-          //  '<br/>' + 'Score: ' + val
           }
           return params['name'];
       }}

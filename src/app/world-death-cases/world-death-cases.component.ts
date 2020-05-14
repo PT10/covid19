@@ -1,11 +1,10 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectorRef } from '@angular/core';
 import { BaseCases } from '../baseCases';
-
+import { RawDataProviderService } from '../services/raw-data-provider.service';
 import { AppEventService } from '../events/app-event.service';
 import { FetchPopulationService } from '../services/fetch-population.service';
 import { ActivatedRoute } from '@angular/router';
 import { ConfigService } from '../services/config.service';
-import { RawDataProviderService } from '../services/raw-data-provider.service';
 
 @Component({
   selector: 'app-world-death-cases',
@@ -22,14 +21,19 @@ export class WorldDeathCasesComponent extends BaseCases {
     protected eventService: AppEventService,
     protected populationService: FetchPopulationService,
     protected route: ActivatedRoute,
-    protected config: ConfigService) {
-    super(dataService, eventService, populationService, route, config);
-    this.chartTitle = 'Covid-19 daily world death trends';
-    this.fileNameTemplate = this.dataFolder + '/result_' + this.fileNameToken + '_time_series_covid19_deaths_global_';
+    protected config: ConfigService,
+    protected ref: ChangeDetectorRef) {
+      super(dataService, eventService, populationService, route, config, ref);
+
+      this.mapType = "globe";
+      this.chartType = "deaths";
+      this.chartTitle = 'Covid-19 daily world death trends';
+      this.fileNameTemplate = this.dataFolder + '/result_' + this.fileNameToken + '_time_series_covid19_deaths_global_';
   }
 
   processData(_data: any) {
     this.seriesData = _data;
+
     let actualDeltas = [];
       // Aggregate state wise to country level if any
       const tempSeriesData = [];

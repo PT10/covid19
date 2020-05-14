@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectorRef } from '@angular/core';
 import { BaseCases } from '../baseCases';
 import { RawDataProviderService } from '../services/raw-data-provider.service';
 import { AppEventService } from '../events/app-event.service';
@@ -21,10 +21,14 @@ export class UsDeathCasesComponent extends BaseCases {
     protected eventService: AppEventService,
     protected populationService: FetchPopulationService,
     protected route: ActivatedRoute,
-    protected config: ConfigService) {
-    super(dataService, eventService, populationService, route, config);
-    this.chartTitle = 'Covid-19 daily US death trends by county';
-    this.fileNameTemplate = this.dataFolder + '/result_' + this.fileNameToken + '_time_series_covid19_deaths_US_';
+    protected config: ConfigService,
+    protected ref: ChangeDetectorRef) {
+      super(dataService, eventService, populationService, route, config,ref);
+
+      this.mapType = "us";
+      this.chartType = "deaths";
+      this.chartTitle = 'Covid-19 daily US death trends by county';
+      this.fileNameTemplate = this.dataFolder + '/result_' + this.fileNameToken + '_time_series_covid19_deaths_US_';
   }
 
   processData(_data: any) {
