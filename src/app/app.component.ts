@@ -23,9 +23,12 @@ export class AppComponent implements OnInit  {
   numDaysInFurure = 0;  // To be added in today's date to find last day
   globeMapRegistered = false;
   usMapRegistered = false;
+  indiaMapRegistered = false;
   configLoaded: boolean;
   isShown;
   chartLoadingInProgress = false;
+  best;
+  worst;
 
   constructor(private dataService: RawDataProviderService, 
     private route: ActivatedRoute,
@@ -84,6 +87,13 @@ export class AppComponent implements OnInit  {
       const usMapJSon = this.processCountyNames(data);
       echarts.registerMap('USA', usMapJSon);
       this.usMapRegistered = true;
+    });
+
+    const indiaUrl = 'assets/indiaGeo.json';
+    this.dataService.sendGetRequest(indiaUrl).subscribe(data => {
+      const indiaMapJSon = data;
+      echarts.registerMap('India', indiaMapJSon);
+      this.indiaMapRegistered = true;
     });
   }
 

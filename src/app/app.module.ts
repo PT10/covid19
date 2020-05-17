@@ -23,11 +23,15 @@ import { AppEventService } from './events/app-event.service';
 import { RouterModule } from '@angular/router';
 import { FetchPopulationService } from './services/fetch-population.service';
 import { ConfigService } from './services/config.service';
+import { IndiaConfirmedCasesComponent } from './india-confirmed-cases/india-confirmed-cases.component';
+import { IndiaDeathCasesComponent } from './india-death-cases/india-death-cases.component';
 
 @NgModule({
   imports:      [ BrowserModule, FormsModule, HttpModule, NgxEchartsModule,  RouterModule.forRoot([]),
     HttpClientModule, MatSliderModule, MatProgressSpinnerModule, MatProgressBarModule ],
-  declarations: [ AppComponent, HelloComponent, UsconfirmedCasesComponent, WorldConfirmedCasesComponent, UsDeathCasesComponent, WorldDeathCasesComponent, ProgressBarComponent, SliderComponent],
+  declarations: [ AppComponent, HelloComponent, UsconfirmedCasesComponent, WorldConfirmedCasesComponent, 
+    UsDeathCasesComponent, WorldDeathCasesComponent, ProgressBarComponent, SliderComponent, 
+    IndiaConfirmedCasesComponent, IndiaDeathCasesComponent],
   bootstrap:    [ AppComponent ],
   providers: [MapProviderService, RawDataProviderService, AppEventService, FetchPopulationService,
     ConfigService]

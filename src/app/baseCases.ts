@@ -10,6 +10,7 @@ import { FetchPopulationService } from './services/fetch-population.service';
 import { ActivatedRoute } from '@angular/router';
 import { ConfigService } from './services/config.service';
 import { ChangeDetectorRef } from '@angular/core';
+import { indiaStateCodes } from './map-provider.service';
 
 export abstract class BaseCases implements OnInit, AfterViewInit, OnChanges {
   seriesData = [];
@@ -54,6 +55,12 @@ export abstract class BaseCases implements OnInit, AfterViewInit, OnChanges {
 
   mapType: string;
   chartType: string;
+
+  bestPerformers: string;
+  worstPerformers: string;
+
+  @Output()
+  onPerformersFound: EventEmitter<any> = new EventEmitter<any> ();
 
   // Used for falling back to data availability on landing page
   static initialLoading = true;
@@ -106,8 +113,10 @@ export abstract class BaseCases implements OnInit, AfterViewInit, OnChanges {
 
   getData() {
     const url = this.fileNameTemplate +  Utils.formatDateForFileName(this.selectedDate) + '.json';
-    this.dataService.sendGetRequest(url).subscribe(data => {
+    this.dataService.sendGetRequest(url, true).subscribe(data => {
+      data = this.processDataJson(data);
       if (BaseCases.initialLoading) { // For the slider "play" to reset to 0 first time
+        this.config.latestDataDate = this.selectedDate;
         this.eventService.publish(EventNames.INITIAL_LOADING_COMPLETED);
       }
       BaseCases.initialLoading = false;
@@ -115,10 +124,12 @@ export abstract class BaseCases implements OnInit, AfterViewInit, OnChanges {
       this.changeChartTitle();
 
       this.processData(data);
+      this.setBestWorstPerformers();
       this.initChart();
       this.eventService.publish(EventNames.CHART_LOAING_COMPLETE);
     }, error => {
       this.changeChartTitle();
+      this.onPerformersFound.emit({best: undefined, worst: undefined});
       this.eventService.publish(EventNames.CHART_LOAING_COMPLETE);
       if (BaseCases.initialLoading && !this.directLink) {
         if (this.numDaysOnSlider-- == 0) {
@@ -136,6 +147,45 @@ export abstract class BaseCases implements OnInit, AfterViewInit, OnChanges {
         this.inProgress = false;
       }
     });
+  }
+
+  setBestWorstPerformers() {
+    const performers = this.processedSeriesData.sort((a, b) => {
+      if (a.value < b.value) {
+        return -1;
+      } else if (a.value === b.value) {
+        return 0;
+      } else {
+          return 1;
+        }
+    });
+
+    this.bestPerformers = performers.slice(0, 5).map(d => {
+      if (this.mapType === "india") {
+        return indiaStateCodes[d.name]
+      }
+      return d.name;
+    }).reverse().join(', ');
+
+    let i = 0;
+    const worstPerformers = []
+    performers.reverse().forEach(series => {
+      if (++i > 5) {
+        return;
+      }
+      if (series.value < this.maxVal * this.config['worstPerformanceFactor']) {
+        return;
+      }
+      if (this.mapType === "india") {
+        worstPerformers.push(indiaStateCodes[series.name]);
+      } else {
+        worstPerformers.push(series.name);
+      }
+    })
+
+    this.worstPerformers = worstPerformers.join(', ');
+
+    this.onPerformersFound.emit({best: this.bestPerformers, worst: this.worstPerformers});
   }
 
   initChart() {
@@ -160,6 +210,9 @@ export abstract class BaseCases implements OnInit, AfterViewInit, OnChanges {
     if (this.mapType === 'globe') {
       url = this.dataFolder + '/result_' + this.fileNameToken + '_' +
         this.selectedRegion + '_time_series_covid19_' + this.chartType + '_global.json' ;
+    } else if (this.mapType === 'india') {
+      url = this.dataFolder + '/result_' + this.fileNameToken + '_' +
+        this.selectedRegion + ' (India)_state_wise_daily_' + this.chartType + '.json';
     } else {
       url = this.dataFolder + '/result_' + this.fileNameToken + '_' +
         this.selectedRegion + '_time_series_covid19_' + this.chartType + '_US.json';
@@ -221,18 +274,26 @@ export abstract class BaseCases implements OnInit, AfterViewInit, OnChanges {
    const actualHistorical = series.actualHistorical;
    actualHistorical.push(series.actual);
 
-   const actual = actualHistorical.concat(series.forecastCases);
+   // Forecast can never be less than last actual
+   const forecastCases = series.forecastCases.map(data => {
+     if (data < series.actual) {
+       return series.actual
+     }
+     return data;
+   });
+   const actual = actualHistorical.concat(forecastCases);
    const lowerbaseline = actualHistorical.concat(series.lowerBaseline);
    const upperBaseline = actualHistorical.concat(series.upperBaseline);
 
-   const currentDate = new Date(this.selectedDate);
+   // Add all dates to create x axis series
+   const currentDate = new Date(this.config.latestDataDate);
    const dates = [];
-   for (let i = actualHistorical.length; i > 0; i--) {
+   for (let i = actualHistorical.length; i > 1 ; i--) { // 1 becaue 0th is actual (current)
      const temp = new Date(currentDate);
      temp.setDate(temp.getDate() - i)
      dates.push(Utils.formatDate(temp));
    }
-   dates.push(Utils.formatDate(this.selectedDate));
+   dates.push(Utils.formatDate(this.config.latestDataDate));
    for (let i = 1; i < 7; i++) {
     const temp = new Date(currentDate);
     temp.setDate(temp.getDate() + i)
@@ -242,23 +303,6 @@ export abstract class BaseCases implements OnInit, AfterViewInit, OnChanges {
    const seriesData = [];
    for (let i = 0; i < actual.length; i++) {
     seriesData.push( {
-        actual: actual[i],
-        lower: lowerbaseline[i],
-        upper: upperBaseline[i]
-     });
-   }
-
-   const seriesDatahistorical = [];
-   for (let i = 0; i < actualHistorical.length; i++) {
-    seriesDatahistorical.push( {
-        actual: actual[i],
-        lower: lowerbaseline[i],
-        upper: upperBaseline[i]
-     });
-   }
-   const seriesDataForecast = [];
-   for (let i = 0; i < actual.length; i++) {
-    seriesDataForecast.push( {
         actual: actual[i],
         lower: lowerbaseline[i],
         upper: upperBaseline[i]
@@ -311,20 +355,35 @@ export abstract class BaseCases implements OnInit, AfterViewInit, OnChanges {
           
         }
       },
+      grid: {
+        containLabel: true
+      },
       series: [
         {
+          // Lower confidence band
           name: 'Lower',
           type: 'line',
-          data: seriesData.map(d => d.lower),
+          data: seriesData.map(d =>  {
+            if (d.lower < series.actual) {
+              return series.actual
+            }
+            return d.lower;
+          }),
           lineStyle: {
               opacity: 0
           },
           stack: 'confidence-band',
           symbol: 'none'
       }, {
+        // Upper confidence band
           name: 'Upper',
           type: 'line',
-          data: seriesData.map(d => d.upper - d.lower),
+          data: seriesData.map(d => {
+            if (d.upper < d.actual) {
+              return d.actual - d.lower
+            }
+            return d.upper - d.lower;
+          }),
           lineStyle: {
               opacity: 0
           },
@@ -335,9 +394,10 @@ export abstract class BaseCases implements OnInit, AfterViewInit, OnChanges {
           stack: 'confidence-band',
           symbol: 'none'
       }, {
+        // Historical data series
           type: 'line',
           name: 'Actual',
-          data: seriesDatahistorical.map(d => d.actual),
+          data: seriesData.slice(0, actualHistorical.length).map(d => d.actual),
           hoverAnimation: false,
           symbolSize: 6,
           itemStyle: {
@@ -349,17 +409,18 @@ export abstract class BaseCases implements OnInit, AfterViewInit, OnChanges {
             symbolSize: 10,
             label: {
               formatter: 'Actual',
-              position: [0, 10],
+              position: 'bottom',
               color: 'white'
             },
             data: [{
-              type: 'max', name: 'Max' 
+              coord: [actualHistorical.length - 1, actualHistorical[actualHistorical.length - 1]]
             }]
           }
       }, {
+        // Forecast data series
         type: 'line',
         name: 'Actual',
-        data: seriesDataForecast.map(d => d.actual),
+        data: seriesData.map(d => d.actual),
         hoverAnimation: false,
         symbolSize: 6,
         itemStyle: {
@@ -374,11 +435,11 @@ export abstract class BaseCases implements OnInit, AfterViewInit, OnChanges {
           symbolSize: 10,
           label: {
             formatter: 'Forecasted',
-            position: [0, 10],
+            position: 'bottom',
             color: 'white'
           },
           data: [{
-            type: 'max', name: 'Max' 
+            coord: [dates.length - 1, actual[actual.length - 1]]
           }]
         }
       }]
@@ -391,6 +452,21 @@ export abstract class BaseCases implements OnInit, AfterViewInit, OnChanges {
     this.ref.detectChanges();
     this.chartInstance.resize();
 
+  }
+
+  processDataJson(_data: string): any[] {
+    if (_data.endsWith(',')) {
+      _data = _data.substr(0, _data.lastIndexOf(','))
+    }
+    _data = '[' + _data + ']';
+    const data = JSON.parse(_data);
+
+    const finalData = [];
+    data.map((d: any) => {
+      d.forEach(dd => finalData.push(dd));
+    })
+
+    return finalData;
   }
 
   changeChartTitle() {

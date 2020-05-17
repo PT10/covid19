@@ -1,21 +1,18 @@
-import { Component, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { BaseCases } from '../baseCases';
 import { RawDataProviderService } from '../services/raw-data-provider.service';
 import { AppEventService } from '../events/app-event.service';
 import { FetchPopulationService } from '../services/fetch-population.service';
 import { ActivatedRoute } from '@angular/router';
 import { ConfigService } from '../services/config.service';
+import { indiaStateCodes } from '../map-provider.service';
 
 @Component({
-  selector: 'app-us-death-cases',
-  templateUrl: './us-death-cases.component.html',
-  styleUrls: ['./us-death-cases.component.css']
+  selector: 'app-india-confirmed-cases',
+  templateUrl: './india-confirmed-cases.component.html',
+  styleUrls: ['./india-confirmed-cases.component.css']
 })
-export class UsDeathCasesComponent extends BaseCases {
-
-  relocatedCounties;
-  selectedDateIndex: number;
-  inProgress = false;
+export class IndiaConfirmedCasesComponent extends BaseCases {
 
   constructor(protected dataService: RawDataProviderService, 
     protected eventService: AppEventService,
@@ -25,17 +22,17 @@ export class UsDeathCasesComponent extends BaseCases {
     protected ref: ChangeDetectorRef) {
       super(dataService, eventService, populationService, route, config,ref);
 
-      this.mapType = "us";
-      this.chartType = "deaths";
-      this.chartTitle = 'Covid-19 daily US death trends by county';
-      this.fileNameTemplate = this.dataFolder + '/result_' + this.fileNameToken + '_time_series_covid19_deaths_US_';
+      this.mapType = "india";
+      this.chartType = "Confirmed";
+      this.chartTitle = 'Covid-19 daily India confirmed trends by state';
+      this.fileNameTemplate = this.dataFolder + '/result_' + this.fileNameToken + '_state_wise_daily_Confirmed_';
   }
 
   processData(_data: any) {
     this.seriesData = _data;
       let actualDeltas = [];
       this.seriesData.forEach(data => {
-        if (!data['Admin2']) {
+        if (data['State'] === 'TT') {
           return;
         }
         actualDeltas.push(data.actualDelta - data.forecastDelta);
@@ -53,7 +50,7 @@ export class UsDeathCasesComponent extends BaseCases {
       
       this.processedSeriesData = [];
       this.seriesData.map(data => {
-        if (!data['Admin2']) {
+        if (data['State'] === 'TT') {
           return;
         }
         let val;
@@ -62,7 +59,7 @@ export class UsDeathCasesComponent extends BaseCases {
         }else {
           val = data.actualDelta - data.forecastDelta
         }
-        this.processedSeriesData.push({name: data['Admin2'] + ' (' + data['Province_State'] + ')', value: val});
+        this.processedSeriesData.push({name: data['State'], value: val});
       });
   }
 
@@ -72,8 +69,8 @@ export class UsDeathCasesComponent extends BaseCases {
       name: 'County covid19 trends',
       type: 'map',
       roam: true,
-      map: 'USA',
-      scaleLimit: {min: 2},
+      map: 'India',
+      scaleLimit: {min: 1},
       itemStyle: {
         emphasis: {
           label: {
@@ -84,35 +81,32 @@ export class UsDeathCasesComponent extends BaseCases {
       },
       data: this.processedSeriesData
     }]
-
-    // Set Position of US map first time as it aligns to global center by default
-    if (this.firstTimeAccess) {
-      this.chartOption.series[0]['center'] = [-100, 36]
-      this.chartOption.series[0]['zoom'] = 5;
-      this.firstTimeAccess = false;
-    }
     
     this.chartOption.tooltip = {
-        trigger: 'item',
-        formatter: function(params) {
-          let countyObj = me.seriesData.find(d => {
-            return d['Admin2'] + ' (' + d['Province_State'] + ')' === params['name']
-          });
+      trigger: 'item',
+      formatter: function(params) {
+        let countyObj = me.seriesData.find(d => {
+          return d['State'] === params['name']
+        });
 
-          if (countyObj) {
-            countyObj = JSON.parse(JSON.stringify(countyObj));
-            if (countyObj.forecastDelta < 0) {
-              countyObj.forecastDelta = 0;
-            }
-            if (countyObj.forecast < 0) {
-              countyObj.forecast = 0;
-            }
-            return countyObj['Admin2'] + '(' + countyObj['Province_State'] + ')' + 
-            '<br/>' + 'New Deaths: ' + countyObj.actualDelta + ' (Forecasted: ' + countyObj.forecastDelta + ')' +
-            '<br/>' + 'Total Deaths: ' + countyObj.actual + ' (Forecasted: ' + countyObj.forecast + ')'
+        if (countyObj) {
+          countyObj = JSON.parse(JSON.stringify(countyObj));
+          if (countyObj.forecastDelta < 0) {
+            countyObj.forecastDelta = 0;
           }
-          return params['name'];
-      }}
+          if (countyObj.forecast < 0) {
+            countyObj.forecast = 0;
+          }
+          return indiaStateCodes[countyObj['State']] + 
+          '<br/>' + 'New Cases: ' + countyObj.actualDelta + ' (Forecasted: ' + countyObj.forecastDelta + ')' +
+          '<br/>' + 'Total Cases: ' + countyObj.actual + ' (Forecasted: ' + countyObj.forecast + ')'
+        }
+        return params['name'];
+    }}
+  }
+
+  getStateFullName(_abb) {
+    return indiaStateCodes[_abb];
   }
 
 }

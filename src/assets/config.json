@@ -2,5 +2,6 @@
     "fileNameToken": "dynamic_delta",
     "defaultView": "worldConfirmed",
     "numDaysOnSlider": 15,
-    "numDaysInFurure": 0
+    "numDaysInFurure": 0,
+    "worstPerformanceFactor": 0.5
 }

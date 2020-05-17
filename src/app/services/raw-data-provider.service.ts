@@ -8,14 +8,15 @@ export class RawDataProviderService {
 
   constructor(private httpConnection: Http) { }
 
-  sendGetRequest(_url: string, _headers?: {}): Observable<any> {
+  sendGetRequest(_url: string, _skipDecode?: boolean): Observable<any> {
     let url =_url
 
     return this.httpConnection.get(url)
     .map(_response => {
-      let resData = _response.json();
-
-      return resData;
+      if (_skipDecode) {
+        return _response.text();                                                                            
+      }
+      return _response.json();
     });
   }
 }

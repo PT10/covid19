@@ -37,6 +37,9 @@ export class UsconfirmedCasesComponent extends BaseCases {
     this.seriesData = _data;
       let actualDeltas = [];
       this.seriesData.forEach(data => {
+        if (!data['Admin2']) {
+          return;
+        }
         actualDeltas.push(data.actualDelta - data.forecastDelta);
       });
 
@@ -49,15 +52,19 @@ export class UsconfirmedCasesComponent extends BaseCases {
       } else {
         this.maxVal = -1 * this.minVal;
       }
-      
-      this.processedSeriesData = this.seriesData.map(data => {
+
+      this.processedSeriesData = [];
+      this.seriesData.map(data => {
+        if (!data['Admin2']) {
+          return;
+        }
         let val;
         if (data.actualDelta === 0 ) {
           val = this.minVal;
         }else {
           val = data.actualDelta - data.forecastDelta
         }
-        return {name: data['Admin2'] + ' (' + data['Province_State'] + ')', value: val}
+        this.processedSeriesData.push({name: data['Admin2'] + ' (' + data['Province_State'] + ')', value: val});
       });
   }
 
