@@ -79,7 +79,10 @@ export class UsDeathCasesComponent extends BaseCases {
           label: {
             show: false
           },
-          areaColor: undefined
+          areaColor: undefined,
+          borderType: 'solid',
+          shadowColor: 'rgba(0, 0, 0, 0.8)',
+          shadowBlur: 20
         }
       },
       data: this.processedSeriesData
