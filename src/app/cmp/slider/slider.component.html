@@ -1,5 +1,5 @@
 <div style="width: 100%; font-size: 12px;">
-  <button type="button" type="button" *ngIf="!playing || firstTimePlay" class="btn btn-light btn-sm fa fa-play button-style" title="Play" 
+  <button type="button" type="button" *ngIf="!playing" class="btn btn-light btn-sm fa fa-play button-style" title="Play" 
     (click)="startPlay()" [disabled]="selectedDateIndex === numDays"></button>
   <button *ngIf="playing" ype="button" class="btn btn-light btn-sm fa fa-pause button-style"
     title="Pause" (click)="stopPlay()"></button>

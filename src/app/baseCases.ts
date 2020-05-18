@@ -98,6 +98,10 @@ export abstract class BaseCases implements OnInit, AfterViewInit, OnChanges {
     this.eventService.getObserver(EventNames.PLAY_STATUS_CHANGED).subscribe(data => {
       BaseCases.playStarted = data.started;
     });
+
+    this.eventService.getObserver(EventNames.SLIDER_RESET).subscribe(data => {
+      BaseCases.initialLoading = false;
+    });
   }
 
   ngAfterViewInit() {
@@ -115,15 +119,14 @@ export abstract class BaseCases implements OnInit, AfterViewInit, OnChanges {
     const url = this.fileNameTemplate +  Utils.formatDateForFileName(this.selectedDate) + '.json';
     this.dataService.sendGetRequest(url, true).subscribe(data => {
       data = this.processDataJson(data);
-      if (BaseCases.initialLoading) { // For the slider "play" to reset to 0 first time
+      
+      if (BaseCases.initialLoading) { // Sqave the latest data available date for the drill down 
         this.config.latestDataDate = this.selectedDate;
-        this.eventService.publish(EventNames.INITIAL_LOADING_COMPLETED);
       }
-      BaseCases.initialLoading = false;
 
       this.changeChartTitle();
-
       this.processData(data);
+      this.removeDuplicates();
       this.setBestWorstPerformers();
       this.initChart();
       this.eventService.publish(EventNames.CHART_LOAING_COMPLETE);
@@ -131,18 +134,15 @@ export abstract class BaseCases implements OnInit, AfterViewInit, OnChanges {
       this.changeChartTitle();
       this.onPerformersFound.emit({best: undefined, worst: undefined});
       this.eventService.publish(EventNames.CHART_LOAING_COMPLETE);
-      if (BaseCases.initialLoading && !this.directLink) {
-        if (this.numDaysOnSlider-- == 0) {
-          BaseCases.initialLoading = false;
-          this.eventService.publish(EventNames.INITIAL_LOADING_COMPLETED);
-        } else {
-          this.eventService.publish(EventNames.NAVIGATE_BACK);
-        }
-      } else if (BaseCases.playStarted) {
+
+      if (BaseCases.playStarted) { // If play is started stop the play and navigate to last date
         this.eventService.publish(EventNames.PLAY_STATUS_CHANGED, {started: false});
         this.eventService.publish(EventNames.NAVIGATE_BACK);
-      } 
-      else {
+      } else if (BaseCases.initialLoading && !this.directLink && this.numDaysOnSlider-- > 0) {
+        //if (this.numDaysOnSlider-- !== 0) {
+          this.eventService.publish(EventNames.NAVIGATE_BACK);
+        //}
+      } else {
         this.setError();
         this.inProgress = false;
       }
@@ -171,6 +171,9 @@ export abstract class BaseCases implements OnInit, AfterViewInit, OnChanges {
     const worstPerformers = []
     performers.reverse().forEach(series => {
       if (++i > 5) {
+        return;
+      }
+      if (series.name.startsWith('Unassigned')) {
         return;
       }
       if (series.value < this.maxVal * this.config['worstPerformanceFactor']) {
@@ -463,10 +466,24 @@ export abstract class BaseCases implements OnInit, AfterViewInit, OnChanges {
 
     const finalData = [];
     data.map((d: any) => {
-      d.forEach(dd => finalData.push(dd));
+      d.forEach(dd => {
+        //if (!finalData.find(series => series.name === dd.name)) {
+          finalData.push(dd);
+        //}
+      });
     })
 
     return finalData;
+  }
+
+  removeDuplicates() {
+    const tempData = []
+    this.processedSeriesData.forEach(data => {
+      if (!tempData.find(d => d.name === data.name)) {
+        tempData.push(data);
+      }
+    });
+    this.processedSeriesData = tempData;
   }
 
   changeChartTitle() {

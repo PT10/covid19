@@ -11,6 +11,7 @@ export class ConfigService {
   numDaysInFurure: number;
   fileNameToken: string;
   worstPerformanceFactor: number;
+  chartRunDelayInMS: number;
 
   _latestDataDate: Date;
   get latestDataDate(): Date {
@@ -31,6 +32,7 @@ export class ConfigService {
       this.numDaysOnSlider = data.numDaysOnSlider;
       this.numDaysInFurure = data.numDaysInFurure;
       this.worstPerformanceFactor = data.worstPerformanceFactor;
+      this.chartRunDelayInMS = data.chartRunDelayInMS;
 
       this.eventService.publish(EventNames.CONFIG_LOADED);
     })

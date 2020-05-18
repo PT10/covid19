@@ -6,6 +6,7 @@ import { ActivatedRoute } from '@angular/router';
 import { ConfigService } from './services/config.service';
 import { AppEventService } from './events/app-event.service';
 import { EventNames } from './events/EventNames';
+import { BaseCases } from './baseCases';
 
 @Component({
   selector: 'my-app',
@@ -108,6 +109,14 @@ export class AppComponent implements OnInit  {
     return {
       type: "FeatureCollection",
       features: newFeatures
+    }
+  }
+
+  // Before the slider is manually reset if user navigates across tabs it should always show latest data
+  // Hence we start fron the last date and navigate backwards till latest data is found
+  setSliderDate() {
+    if (BaseCases.initialLoading) {
+      this.selectedDate = new Date(this.lastDay);
     }
   }
 

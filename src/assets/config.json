@@ -3,5 +3,6 @@
     "defaultView": "worldConfirmed",
     "numDaysOnSlider": 15,
     "numDaysInFurure": 0,
-    "worstPerformanceFactor": 0.5
+    "worstPerformanceFactor": 0.5,
+    "chartRunDelayInMS": 2000
 }
