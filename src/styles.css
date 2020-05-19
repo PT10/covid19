@@ -11,6 +11,22 @@ p {
   font-family: Lato;
 }
 
+label {
+  font-size: 20px;
+}
+
+.button-style {
+  color: white;
+  background-color: green;
+  border: none;
+}
+
+.button-style:hover {
+  color: white;
+  background-color: green;
+  border: none;
+}
+
 .hidden {
   display: none;
 }

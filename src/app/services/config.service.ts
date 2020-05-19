@@ -10,6 +10,17 @@ export class ConfigService {
   numDaysOnSlider: number;
   numDaysInFurure: number;
   fileNameToken: string;
+  worstPerformanceFactor: number;
+  chartRunDelayInMS: number;
+
+  _latestDataDate: Date;
+  get latestDataDate(): Date {
+    return this._latestDataDate;
+  }
+
+  set latestDataDate(_data: Date) {
+    this._latestDataDate = _data;
+  }
 
   constructor(private dataService: RawDataProviderService,
     private eventService: AppEventService) {
@@ -20,6 +31,8 @@ export class ConfigService {
       this.fileNameToken = data.fileNameToken;
       this.numDaysOnSlider = data.numDaysOnSlider;
       this.numDaysInFurure = data.numDaysInFurure;
+      this.worstPerformanceFactor = data.worstPerformanceFactor;
+      this.chartRunDelayInMS = data.chartRunDelayInMS;
 
       this.eventService.publish(EventNames.CONFIG_LOADED);
     })

@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectorRef } from '@angular/core';
 import { BaseCases } from '../baseCases';
 import { RawDataProviderService } from '../services/raw-data-provider.service';
 import { AppEventService } from '../events/app-event.service';
@@ -21,16 +21,23 @@ export class UsDeathCasesComponent extends BaseCases {
     protected eventService: AppEventService,
     protected populationService: FetchPopulationService,
     protected route: ActivatedRoute,
-    protected config: ConfigService) {
-    super(dataService, eventService, populationService, route, config);
-    this.chartTitle = 'Covid-19 daily US death trends by county';
-    this.fileNameTemplate = this.dataFolder + '/result_' + this.fileNameToken + '_time_series_covid19_deaths_US_';
+    protected config: ConfigService,
+    protected ref: ChangeDetectorRef) {
+      super(dataService, eventService, populationService, route, config,ref);
+
+      this.mapType = "us";
+      this.chartType = "deaths";
+      this.chartTitle = 'Covid-19 daily US death trends by county';
+      this.fileNameTemplate = this.dataFolder + '/result_' + this.fileNameToken + '_time_series_covid19_deaths_US_';
   }
 
   processData(_data: any) {
     this.seriesData = _data;
       let actualDeltas = [];
       this.seriesData.forEach(data => {
+        if (!data['Admin2']) {
+          return;
+        }
         actualDeltas.push(data.actualDelta - data.forecastDelta);
       });
 
@@ -44,14 +51,18 @@ export class UsDeathCasesComponent extends BaseCases {
         this.maxVal = -1 * this.minVal;
       }
       
-      this.processedSeriesData = this.seriesData.map(data => {
-       let val;
+      this.processedSeriesData = [];
+      this.seriesData.map(data => {
+        if (!data['Admin2']) {
+          return;
+        }
+        let val;
         if (data.actualDelta === 0 ) {
           val = this.minVal;
         }else {
           val = data.actualDelta - data.forecastDelta
         }
-        return {name: data['Admin2'] + ' (' + data['Province_State'] + ')', value: val}
+        this.processedSeriesData.push({name: data['Admin2'] + ' (' + data['Province_State'] + ')', value: val});
       });
   }
 
@@ -68,7 +79,10 @@ export class UsDeathCasesComponent extends BaseCases {
           label: {
             show: false
           },
-          areaColor: undefined
+          areaColor: undefined,
+          borderType: 'solid',
+          shadowColor: 'rgba(0, 0, 0, 0.8)',
+          shadowBlur: 20
         }
       },
       data: this.processedSeriesData

@@ -27,16 +27,22 @@
     </div> -->
     <ul class="nav" style="padding-top: 10px">
       <li [ngClass]="view === 'worldConfirmed' ? 'nav-item active' : 'nav-item'">
-        <a class="nav-link" href="#" (click)="view = 'worldConfirmed'">World confirmed</a>
+        <a class="nav-link" (click)="setSliderDate(); view = 'worldConfirmed';">World confirmed</a>
       </li>
       <li [ngClass]="view === 'worldDeaths' ? 'nav-item active' : 'nav-item'">
-        <a class="nav-link" href="#" (click)="view = 'worldDeaths'">World deaths</a>
+        <a class="nav-link" (click)="view = 'worldDeaths'">World deaths</a>
       </li>
       <li [ngClass]="view === 'usConfirmed' ? 'nav-item active' : 'nav-item'">
-        <a class="nav-link" href="#" (click)="view = 'usConfirmed';">US confirmed</a>
+        <a class="nav-link" (click)="setSliderDate(); view = 'usConfirmed';">US confirmed</a>
       </li>
       <li [ngClass]="view === 'usDeaths' ? 'nav-item active' : 'nav-item'">
-        <a class="nav-link" href="#" (click)="view = 'usDeaths'">US deaths</a>
+        <a class="nav-link" (click)="setSliderDate(); view = 'usDeaths';">US deaths</a>
+      </li>
+      <li [ngClass]="view === 'indiaConfirmed' ? 'nav-item active' : 'nav-item'">
+        <a class="nav-link" (click)="setSliderDate(); view = 'indiaConfirmed';">India confirmed</a>
+      </li>
+      <li [ngClass]="view === 'indiaDeaths' ? 'nav-item active' : 'nav-item'">
+        <a class="nav-link" (click)="setSliderDate(); view = 'indiaDeaths';">India deaths</a>
       </li>
     </ul>
   </nav>
@@ -66,6 +72,16 @@
           </div>
       </div>
     </div>
+    <div *ngIf="best && worst" class="row justify-content-start" style="margin-top: 10px;font-size: 12px;">
+      <!-- <div class="col-md-auto">
+        <span style="font-weight: bold;">Best performers: </span>
+        <span style="color: #02c102; font-weight: bold;">{{best}}</span>
+      </div> -->
+      <div class="col-md-auto">
+        <span style="font-weight: bold;">Most worsened: </span>
+        <span style="color: red; font-weight: bold;">{{worst}}</span>
+      </div>
+    </div>
     <div class="row justify-content-end" style="margin-top: 10px;font-size: 12px;">
       <div class="col-md-auto">
         <span>As compared to past trend: </span>
@@ -91,26 +107,49 @@
       <div class="col-sm-11 text-center" style="background: #063f6d;">
         <div *ngIf="view === 'worldConfirmed'">
           <app-progress-bar [hidden]="globeMapRegistered"></app-progress-bar>
-          <app-world-confirmed-cases *ngIf="globeMapRegistered" [selectedDate]="selectedDate" [numDaysOnSlider]="numDaysOnSlider" (chartTitleChange)="chartTitle = $event"></app-world-confirmed-cases>
+          <app-world-confirmed-cases *ngIf="globeMapRegistered" [selectedDate]="selectedDate" 
+            (onPerformersFound)="best = $event.best; worst = $event.worst"
+            [numDaysOnSlider]="numDaysOnSlider" (chartTitleChange)="chartTitle = $event"></app-world-confirmed-cases>
         </div>
         <div *ngIf="view === 'worldDeaths'">
           <app-progress-bar [hidden]="globeMapRegistered"></app-progress-bar>
-          <app-world-death-cases *ngIf="globeMapRegistered" [selectedDate]="selectedDate" [numDaysOnSlider]="numDaysOnSlider" (chartTitleChange)="chartTitle = $event"></app-world-death-cases>
+          <app-world-death-cases *ngIf="globeMapRegistered" [selectedDate]="selectedDate" 
+            (onPerformersFound)="best = $event.best; worst = $event.worst"  
+            [numDaysOnSlider]="numDaysOnSlider" (chartTitleChange)="chartTitle = $event"></app-world-death-cases>
         </div>
         <div *ngIf="view === 'usConfirmed'">
           <app-progress-bar [hidden]="usMapRegistered"></app-progress-bar>
-          <app-us-confirmed-cases *ngIf="usMapRegistered" [selectedDate]="selectedDate" [numDaysOnSlider]="numDaysOnSlider" (chartTitleChange)="chartTitle = $event"></app-us-confirmed-cases>
+          <app-us-confirmed-cases *ngIf="usMapRegistered" [selectedDate]="selectedDate" 
+            (onPerformersFound)="best = $event.best; worst = $event.worst"
+            [numDaysOnSlider]="numDaysOnSlider" (chartTitleChange)="chartTitle = $event"></app-us-confirmed-cases>
         </div>
         <div *ngIf="view === 'usDeaths'">
           <app-progress-bar [hidden]="usMapRegistered"></app-progress-bar>
-          <app-us-death-cases *ngIf="usMapRegistered" [selectedDate]="selectedDate" [numDaysOnSlider]="numDaysOnSlider" (chartTitleChange)="chartTitle = $event"></app-us-death-cases>
+          <app-us-death-cases *ngIf="usMapRegistered" [selectedDate]="selectedDate" 
+            (onPerformersFound)="best = $event.best; worst = $event.worst"
+            [numDaysOnSlider]="numDaysOnSlider" (chartTitleChange)="chartTitle = $event"></app-us-death-cases>
+        </div>
+        <div *ngIf="view === 'indiaConfirmed'">
+          <app-progress-bar [hidden]="indiaMapRegistered"></app-progress-bar>
+          <app-india-confirmed-cases *ngIf="usMapRegistered" [selectedDate]="selectedDate"
+            (onPerformersFound)="best = $event.best; worst = $event.worst"
+            [numDaysOnSlider]="numDaysOnSlider" (chartTitleChange)="chartTitle = $event"></app-india-confirmed-cases>
+        </div>
+        <div *ngIf="view === 'indiaDeaths'">
+          <app-progress-bar [hidden]="indiaMapRegistered"></app-progress-bar>
+          <app-india-death-cases *ngIf="usMapRegistered" [selectedDate]="selectedDate" 
+            (onPerformersFound)="best = $event.best; worst = $event.worst"
+            [numDaysOnSlider]="numDaysOnSlider" (chartTitleChange)="chartTitle = $event"></app-india-death-cases>
         </div>
       </div>
     </div>
-    <div class="row" style="margin-top: 30px">
+    <div class="row" style="margin-top: 30px; position: relative;">
       <span style="font-size: 12px;">
         <i>Methodology: Each day we apply our forecast models on the updated data provided by
-        <a style="color: #E04E39 !important;" href="https://github.com/CSSEGISandData/COVID-19/" target="_blank">Center for Systems Science and Engineering (CSSE) at Johns Hopkins University</a>. Based on the models, 
+        <a style="color: #E04E39 !important;" href="https://github.com/CSSEGISandData/COVID-19/" target="_blank">
+          Center for Systems Science and Engineering (CSSE) at Johns Hopkins University</a>, 
+          <a style="color: #E04E39 !important;" href="https://www.covid19india.org/" target="_blank">
+            www.covid19india.org</a>. Based on the models, 
         we forecast the new cases/deaths for that day and compare with the actual new cases/deaths. 
           The delta between these two numbers is used to color code the heatmap. On the extreme left hand side 
           of the scale is solid green which indicates either no new cases or the biggest drop compared to the 

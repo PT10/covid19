@@ -1,24 +1,18 @@
-import { Component, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { BaseCases } from '../baseCases';
 import { RawDataProviderService } from '../services/raw-data-provider.service';
 import { AppEventService } from '../events/app-event.service';
 import { FetchPopulationService } from '../services/fetch-population.service';
 import { ActivatedRoute } from '@angular/router';
 import { ConfigService } from '../services/config.service';
+import { indiaStateCodes } from '../map-provider.service';
 
 @Component({
-  selector: 'app-world-confirmed-cases',
-  templateUrl: './world-confirmed-cases.component.html',
-  styleUrls: ['./world-confirmed-cases.component.css']
+  selector: 'app-india-death-cases',
+  templateUrl: './india-death-cases.component.html',
+  styleUrls: ['./india-death-cases.component.css']
 })
-export class WorldConfirmedCasesComponent extends BaseCases {
-
-  relocatedCounties;
-  selectedDateIndex: number;
-  inProgress = false;
-
-  absMin: number;
-  absMax: number;
+export class IndiaDeathCasesComponent extends BaseCases {
 
   constructor(protected dataService: RawDataProviderService, 
     protected eventService: AppEventService,
@@ -28,29 +22,19 @@ export class WorldConfirmedCasesComponent extends BaseCases {
     protected ref: ChangeDetectorRef) {
       super(dataService, eventService, populationService, route, config,ref);
 
-      this.mapType = "globe";
-      this.chartType = "confirmed";
-      this.chartTitle = 'Covid-19 daily world confirmed trends';
-      this.fileNameTemplate = this.dataFolder + '/result_' + this.fileNameToken + '_time_series_covid19_confirmed_global_';
-  }
-
-  ngOnInit() {
-    super.ngOnInit();
+      this.mapType = "india";
+      this.chartType = "Deceased";
+      this.chartTitle = 'Covid-19 daily India deaths trends by state';
+      this.fileNameTemplate = this.dataFolder + '/result_' + this.fileNameToken + '_state_wise_daily_Deceased_';
   }
 
   processData(_data: any) {
-    let actualDeltas = [];
     this.seriesData = _data;
-      // Aggregate state wise to country level if any
-      const tempSeriesData = [];
+      let actualDeltas = [];
       this.seriesData.forEach(data => {
-        if (!data['Province/State']) {
-          tempSeriesData.push(data);
+        if (data['State'] === 'TT') {
+          return;
         }
-      });
-      this.seriesData = tempSeriesData;
-
-      this.seriesData.forEach(data => {
         actualDeltas.push(data.actualDelta - data.forecastDelta);
       });
 
@@ -63,47 +47,49 @@ export class WorldConfirmedCasesComponent extends BaseCases {
       } else {
         this.maxVal = -1 * this.minVal;
       }
-
-      this.processedSeriesData = this.seriesData.map(data => {
+      
+      this.processedSeriesData = [];
+      this.seriesData.map(data => {
+        if (data['State'] === 'TT') {
+          return;
+        }
         let val;
         if (data.actualDelta === 0 ) {
           val = this.minVal;
         }else {
           val = data.actualDelta - data.forecastDelta
         }
-        return {name: data['Country/Region'], value: val}
+        this.processedSeriesData.push({name: data['State'], value: val});
       });
   }
-  
 
   setChartOptions() {
     const me = this;
     this.chartOption.series = [{
-          name: 'County covid19 trends',
-          type: 'map',
-          roam: true,
-          map: 'world',
-          scaleLimit: {min: 1},
-          itemStyle: {
-            emphasis: {
-              label: {
-                show: false
-              },
-              areaColor: undefined,
-              borderType: 'solid',
-              shadowColor: 'rgba(0, 0, 0, 0.8)',
-              shadowBlur: 10
-            }
+      name: 'County covid19 trends',
+      type: 'map',
+      roam: true,
+      map: 'India',
+      scaleLimit: {min: 1},
+      itemStyle: {
+        emphasis: {
+          label: {
+            show: false
           },
-          data: this.processedSeriesData
+          areaColor: undefined,
+          borderType: 'solid',
+          shadowColor: 'rgba(0, 0, 0, 0.8)',
+          shadowBlur: 20
         }
-      ]
+      },
+      data: this.processedSeriesData
+    }]
     
     this.chartOption.tooltip = {
         trigger: 'item',
         formatter: function(params) {
           let countyObj = me.seriesData.find(d => {
-            return d['Country/Region'] === params['name']
+            return d['State'] === params['name']
           });
 
           if (countyObj) {
@@ -114,12 +100,16 @@ export class WorldConfirmedCasesComponent extends BaseCases {
             if (countyObj.forecast < 0) {
               countyObj.forecast = 0;
             }
-            return countyObj['Country/Region'] +
+            return indiaStateCodes[countyObj['State']] + 
             '<br/>' + 'New Cases: ' + countyObj.actualDelta + ' (Forecasted: ' + countyObj.forecastDelta + ')' +
             '<br/>' + 'Total Cases: ' + countyObj.actual + ' (Forecasted: ' + countyObj.forecast + ')'
           }
           return params['name'];
       }}
+  }
+
+  getStateFullName(_abb) {
+    return indiaStateCodes[_abb];
   }
 
 }

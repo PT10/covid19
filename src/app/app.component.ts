@@ -6,6 +6,7 @@ import { ActivatedRoute } from '@angular/router';
 import { ConfigService } from './services/config.service';
 import { AppEventService } from './events/app-event.service';
 import { EventNames } from './events/EventNames';
+import { BaseCases } from './baseCases';
 
 @Component({
   selector: 'my-app',
@@ -23,9 +24,12 @@ export class AppComponent implements OnInit  {
   numDaysInFurure = 0;  // To be added in today's date to find last day
   globeMapRegistered = false;
   usMapRegistered = false;
+  indiaMapRegistered = false;
   configLoaded: boolean;
   isShown;
   chartLoadingInProgress = false;
+  best;
+  worst;
 
   constructor(private dataService: RawDataProviderService, 
     private route: ActivatedRoute,
@@ -85,6 +89,13 @@ export class AppComponent implements OnInit  {
       echarts.registerMap('USA', usMapJSon);
       this.usMapRegistered = true;
     });
+
+    const indiaUrl = 'assets/indiaGeo.json';
+    this.dataService.sendGetRequest(indiaUrl).subscribe(data => {
+      const indiaMapJSon = data;
+      echarts.registerMap('India', indiaMapJSon);
+      this.indiaMapRegistered = true;
+    });
   }
 
   processCountyNames(usMap) {
@@ -98,6 +109,14 @@ export class AppComponent implements OnInit  {
     return {
       type: "FeatureCollection",
       features: newFeatures
+    }
+  }
+
+  // Before the slider is manually reset if user navigates across tabs it should always show latest data
+  // Hence we start fron the last date and navigate backwards till latest data is found
+  setSliderDate() {
+    if (BaseCases.initialLoading) {
+      this.selectedDate = new Date(this.lastDay);
     }
   }
 

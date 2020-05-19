@@ -1,16 +1,18 @@
-import { Component, OnInit, Output, Input, EventEmitter } from '@angular/core';
+import { Component, OnInit, Output, Input, EventEmitter, OnChanges } from '@angular/core';
 import { Utils } from '../../utils';
 import { AppEventService } from '../../events/app-event.service';
 import { EventNames } from '../../events/EventNames';
 import * as $ from 'jquery';
 import { MatSliderChange } from '@angular/material';
+import { BaseCases } from '../../baseCases';
+import { ConfigService } from '../../services/config.service';
 
 @Component({
   selector: 'app-slider',
   templateUrl: './slider.component.html',
   styleUrls: ['./slider.component.css']
 })
-export class SliderComponent implements OnInit {
+export class SliderComponent implements OnInit, OnChanges {
 
   @Input()
   numDays: number;
@@ -34,25 +36,35 @@ export class SliderComponent implements OnInit {
 
   playing: boolean = false;
 
-  delayAmt = 2000;
-  
-  firstTimePlay = false;
-
   formatDate = Utils.formatDate;
 
-  constructor(private eventService: AppEventService) { 
+  constructor(private eventService: AppEventService,
+    private configService: ConfigService) { 
     
   }
 
-  ngOnInit() {
-    const diffTime = Math.abs(this.lastDay - this.selectedDate);
-    this.selectedDateIndex = Math.round((this.numDays - (diffTime / (1000 * 60 * 60 * 24)))); //this.defaultSelectedIndex; //this.numDays;
+  /*
+  On the landing page slider will settle on the latest date for which the data is available for the default tab.
+  When user switches to a different tab, slider will settle on the new date for which the new tab has the latest data
+  When user manually changes the slider index then it sets initial loading flaG to false and then onwards
+  the date/ slider index is not changes if user navigates across tabs.
 
+  Similarly while slider is not reset manually and user clicks on Run, we start from the beginnig of the slider until 
+  the end is reached or no data is found. IF user has manually reset the slider then we start from the current position
+  on clicking Run. 
+
+  */
+
+  ngOnInit() {
+    this.setSelectedDateIndex();
+    
     this.firstDay = Utils.formatDate(this.firstDay);
     this.eventService.getObserver(EventNames.NAVIGATE_BACK).subscribe(data => {
       if (this.selectedDateIndex > 1) {
         this.selectedDateIndex--;
-        this.onDateChanged();
+        this.onDateChangedImpl();
+      } else {
+        this.eventService.publish(EventNames.SET_ERROR);
       }
     });
 
@@ -61,14 +73,18 @@ export class SliderComponent implements OnInit {
         this.playing = false;
       }
     });
+  }
 
-    this.eventService.getObserver(EventNames.INITIAL_LOADING_COMPLETED).subscribe(data => {
-      this.firstTimePlay = true;
-    });
+  ngOnChanges() {
+    this.setSelectedDateIndex();
   }
 
   onDateChanged() {
-    this.firstTimePlay = false;
+    this.eventService.publish(EventNames.SLIDER_RESET);
+    this.onDateChangedImpl();
+  }
+
+  onDateChangedImpl() {
     const diff = this.numDays - this.selectedDateIndex;
     const tempDate: Date = new Date(this.lastDay);
     tempDate.setDate(this.lastDay.getDate() - diff);
@@ -83,14 +99,13 @@ export class SliderComponent implements OnInit {
 
     this.eventService.publish(EventNames.PLAY_STATUS_CHANGED, {started: true});
 
-    if (this.firstTimePlay) {
-      this.firstTimePlay = false;
+    if (BaseCases.initialLoading) {
       this.selectedDateIndex = 0;
     }
     
     while(this.selectedDateIndex !== this.numDays && this.playing) {
       this.selectedDateIndex++;
-      this.onDateChanged();
+      this.onDateChangedImpl();
 
       // onDateChange() will trigger chart loading for new date
       // Wait until the chart is loaded completely and then wait for the delay amount
@@ -104,7 +119,7 @@ export class SliderComponent implements OnInit {
         await this.delay(500);
       }
 
-      await this.delay(this.delayAmt);
+      await this.delay(this.configService.chartRunDelayInMS);
     }
 
     this.playing = false;
@@ -126,5 +141,9 @@ export class SliderComponent implements OnInit {
     $('.mat-slider-thumb-label-text').text(Utils.getDateMonth(tempFirstDay));
   }
 
+  setSelectedDateIndex() {
+    const diffTime = Math.abs(this.lastDay - this.selectedDate);
+    this.selectedDateIndex = Math.round((this.numDays - (diffTime / (1000 * 60 * 60 * 24)))); //this.defaultSelectedIndex; //this.numDays;
+  }
 
 }

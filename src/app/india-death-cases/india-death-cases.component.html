@@ -15,8 +15,9 @@
   </div>
 </div>
 <div *ngIf="selectedRegion && !errorMessage">
-  <label style="border-bottom: 2px solid;">{{selectedRegion}} </label>
+  <label style="border-bottom: 2px solid;">{{getStateFullName(selectedRegion)}} </label>
   <label>forecast for next week</label>
 </div>
 <app-progress-bar [hidden]="!drilldownInProgress || errorMessage"></app-progress-bar>
-<div #charts2 [ngClass]="selectedRegion && !drilldownInProgress && !errorMessage ? '': 'hidden'" style="height: 70%;"></div>
+<div #charts2 [ngClass]="selectedRegion && !drilldownInProgress && !errorMessage ? 'demo-chart': 'hidden'" style="height: 70%;"></div>
+

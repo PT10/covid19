@@ -4,5 +4,6 @@ export const EventNames = {
   CHART_LOAING_COMPLETE: "chartLoadingComplete",
   NAVIGATE_BACK: "navigateBack",
   PLAY_STATUS_CHANGED: "playStatusChanged",
-  INITIAL_LOADING_COMPLETED: "initialLoadingCompleted"
+  SLIDER_RESET: "sliderReset",
+  SET_ERROR: "setError"
 }
