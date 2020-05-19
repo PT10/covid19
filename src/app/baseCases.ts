@@ -102,6 +102,10 @@ export abstract class BaseCases implements OnInit, AfterViewInit, OnChanges {
     this.eventService.getObserver(EventNames.SLIDER_RESET).subscribe(data => {
       BaseCases.initialLoading = false;
     });
+
+    this.eventService.getObserver(EventNames.SET_ERROR).subscribe(data => {
+      this.setError();
+    });
   }
 
   ngAfterViewInit() {
@@ -110,7 +114,6 @@ export abstract class BaseCases implements OnInit, AfterViewInit, OnChanges {
   }
 
   ngOnChanges() {
-    this.clearError();
     this.selectedRegion = undefined;
     this.getData();
   }
@@ -129,6 +132,7 @@ export abstract class BaseCases implements OnInit, AfterViewInit, OnChanges {
       this.removeDuplicates();
       this.setBestWorstPerformers();
       this.initChart();
+      this.clearError();
       this.eventService.publish(EventNames.CHART_LOAING_COMPLETE);
     }, error => {
       this.changeChartTitle();
@@ -291,7 +295,7 @@ export abstract class BaseCases implements OnInit, AfterViewInit, OnChanges {
    // Add all dates to create x axis series
    const currentDate = new Date(this.config.latestDataDate);
    const dates = [];
-   for (let i = actualHistorical.length; i > 1 ; i--) { // 1 becaue 0th is actual (current)
+   for (let i = actualHistorical.length - 1; i > 0 ; i--) { // 1 becaue 0th is actual (current)
      const temp = new Date(currentDate);
      temp.setDate(temp.getDate() - i)
      dates.push(Utils.formatDate(temp));

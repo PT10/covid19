@@ -63,6 +63,8 @@ export class SliderComponent implements OnInit, OnChanges {
       if (this.selectedDateIndex > 1) {
         this.selectedDateIndex--;
         this.onDateChangedImpl();
+      } else {
+        this.eventService.publish(EventNames.SET_ERROR);
       }
     });
 
