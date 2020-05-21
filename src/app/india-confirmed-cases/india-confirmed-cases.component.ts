@@ -63,53 +63,12 @@ export class IndiaConfirmedCasesComponent extends BaseCases {
       });
   }
 
-  setChartOptions() {
-    const me = this;
-    this.chartOption.series = [{
-      name: 'County covid19 trends',
-      type: 'map',
-      roam: true,
-      map: 'India',
-      scaleLimit: {min: 1},
-      itemStyle: {
-        emphasis: {
-          label: {
-            show: false
-          },
-          areaColor: undefined,
-          borderType: 'solid',
-          shadowColor: 'rgba(0, 0, 0, 0.8)',
-          shadowBlur: 20
-        }
-      },
-      data: this.processedSeriesData
-    }]
-    
-    this.chartOption.tooltip = {
-      trigger: 'item',
-      formatter: function(params) {
-        let countyObj = me.seriesData.find(d => {
-          return d['State'] === params['name']
-        });
-
-        if (countyObj) {
-          countyObj = JSON.parse(JSON.stringify(countyObj));
-          if (countyObj.forecastDelta < 0) {
-            countyObj.forecastDelta = 0;
-          }
-          if (countyObj.forecast < 0) {
-            countyObj.forecast = 0;
-          }
-          return indiaStateCodes[countyObj['State']] + 
-          '<br/>' + 'New Cases: ' + countyObj.actualDelta + ' (Forecasted: ' + countyObj.forecastDelta + ')' +
-          '<br/>' + 'Total Cases: ' + countyObj.actual + ' (Forecasted: ' + countyObj.forecast + ')'
-        }
-        return params['name'];
-    }}
-  }
-
   getStateFullName(_abb) {
     return indiaStateCodes[_abb];
+  }
+
+  getSeriesName(_data) {
+    return _data['State']
   }
 
 }

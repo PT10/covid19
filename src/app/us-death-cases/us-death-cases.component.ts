@@ -67,55 +67,16 @@ export class UsDeathCasesComponent extends BaseCases {
   }
 
   setChartOptions() {
-    const me = this;
-    this.chartOption.series = [{
-      name: 'County covid19 trends',
-      type: 'map',
-      roam: true,
-      map: 'USA',
-      scaleLimit: {min: 2},
-      itemStyle: {
-        emphasis: {
-          label: {
-            show: false
-          },
-          areaColor: undefined,
-          borderType: 'solid',
-          shadowColor: 'rgba(0, 0, 0, 0.8)',
-          shadowBlur: 20
-        }
-      },
-      data: this.processedSeriesData
-    }]
-
     // Set Position of US map first time as it aligns to global center by default
     if (this.firstTimeAccess) {
       this.chartOption.series[0]['center'] = [-100, 36]
       this.chartOption.series[0]['zoom'] = 5;
       this.firstTimeAccess = false;
     }
-    
-    this.chartOption.tooltip = {
-        trigger: 'item',
-        formatter: function(params) {
-          let countyObj = me.seriesData.find(d => {
-            return d['Admin2'] + ' (' + d['Province_State'] + ')' === params['name']
-          });
+  }
 
-          if (countyObj) {
-            countyObj = JSON.parse(JSON.stringify(countyObj));
-            if (countyObj.forecastDelta < 0) {
-              countyObj.forecastDelta = 0;
-            }
-            if (countyObj.forecast < 0) {
-              countyObj.forecast = 0;
-            }
-            return countyObj['Admin2'] + '(' + countyObj['Province_State'] + ')' + 
-            '<br/>' + 'New Deaths: ' + countyObj.actualDelta + ' (Forecasted: ' + countyObj.forecastDelta + ')' +
-            '<br/>' + 'Total Deaths: ' + countyObj.actual + ' (Forecasted: ' + countyObj.forecast + ')'
-          }
-          return params['name'];
-      }}
+  getSeriesName(_data) {
+    return _data['Admin2'] + ' (' + _data['Province_State'] + ')'
   }
 
 }

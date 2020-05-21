@@ -78,7 +78,7 @@ export class AppComponent implements OnInit  {
     const globeUrl = 'assets/globeGeo.json'
     this.dataService.sendGetRequest(globeUrl).subscribe(data => {
       const globeMapJSon = data;
-      echarts.registerMap('world', globeMapJSon);
+      echarts.registerMap('globe', globeMapJSon);
 
       this.globeMapRegistered = true;
     });
@@ -86,14 +86,14 @@ export class AppComponent implements OnInit  {
     const usUrl = 'assets/usGeo.json';
     this.dataService.sendGetRequest(usUrl).subscribe(data => {
       const usMapJSon = this.processCountyNames(data);
-      echarts.registerMap('USA', usMapJSon);
+      echarts.registerMap('us', usMapJSon);
       this.usMapRegistered = true;
     });
 
     const indiaUrl = 'assets/indiaGeo.json';
     this.dataService.sendGetRequest(indiaUrl).subscribe(data => {
       const indiaMapJSon = data;
-      echarts.registerMap('India', indiaMapJSon);
+      echarts.registerMap('india', indiaMapJSon);
       this.indiaMapRegistered = true;
     });
   }
@@ -118,6 +118,15 @@ export class AppComponent implements OnInit  {
     if (BaseCases.initialLoading) {
       this.selectedDate = new Date(this.lastDay);
     }
+  }
+
+  activateLink(_view) {
+    this.view = _view;
+    if (BaseCases.initialLoading) {
+      this.selectedDate = new Date(this.lastDay);
+    }
+    this.chartLoadingInProgress = true;
+    this.worst = undefined;
   }
 
 }

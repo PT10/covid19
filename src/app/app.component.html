@@ -27,22 +27,22 @@
     </div> -->
     <ul class="nav" style="padding-top: 10px">
       <li [ngClass]="view === 'worldConfirmed' ? 'nav-item active' : 'nav-item'">
-        <a class="nav-link" (click)="setSliderDate(); view = 'worldConfirmed';">World confirmed</a>
+        <a class="nav-link" (click)="activateLink('worldConfirmed')">World confirmed</a>
       </li>
       <li [ngClass]="view === 'worldDeaths' ? 'nav-item active' : 'nav-item'">
-        <a class="nav-link" (click)="view = 'worldDeaths'">World deaths</a>
+        <a class="nav-link" (click)="activateLink('worldDeaths')">World deaths</a>
       </li>
       <li [ngClass]="view === 'usConfirmed' ? 'nav-item active' : 'nav-item'">
-        <a class="nav-link" (click)="setSliderDate(); view = 'usConfirmed';">US confirmed</a>
+        <a class="nav-link" (click)="activateLink('usConfirmed')">US confirmed</a>
       </li>
       <li [ngClass]="view === 'usDeaths' ? 'nav-item active' : 'nav-item'">
-        <a class="nav-link" (click)="setSliderDate(); view = 'usDeaths';">US deaths</a>
+        <a class="nav-link" (click)="activateLink('usDeaths')">US deaths</a>
       </li>
       <li [ngClass]="view === 'indiaConfirmed' ? 'nav-item active' : 'nav-item'">
-        <a class="nav-link" (click)="setSliderDate(); view = 'indiaConfirmed';">India confirmed</a>
+        <a class="nav-link" (click)="activateLink('indiaConfirmed')">India confirmed</a>
       </li>
       <li [ngClass]="view === 'indiaDeaths' ? 'nav-item active' : 'nav-item'">
-        <a class="nav-link" (click)="setSliderDate(); view = 'indiaDeaths';">India deaths</a>
+        <a class="nav-link" (click)="activateLink('indiaDeaths')">India deaths</a>
       </li>
     </ul>
   </nav>

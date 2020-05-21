@@ -74,52 +74,9 @@ export class WorldConfirmedCasesComponent extends BaseCases {
         return {name: data['Country/Region'], value: val}
       });
   }
-  
 
-  setChartOptions() {
-    const me = this;
-    this.chartOption.series = [{
-          name: 'County covid19 trends',
-          type: 'map',
-          roam: true,
-          map: 'world',
-          scaleLimit: {min: 1},
-          itemStyle: {
-            emphasis: {
-              label: {
-                show: false
-              },
-              areaColor: undefined,
-              borderType: 'solid',
-              shadowColor: 'rgba(0, 0, 0, 0.8)',
-              shadowBlur: 10
-            }
-          },
-          data: this.processedSeriesData
-        }
-      ]
-    
-    this.chartOption.tooltip = {
-        trigger: 'item',
-        formatter: function(params) {
-          let countyObj = me.seriesData.find(d => {
-            return d['Country/Region'] === params['name']
-          });
-
-          if (countyObj) {
-            countyObj = JSON.parse(JSON.stringify(countyObj));
-            if (countyObj.forecastDelta < 0) {
-              countyObj.forecastDelta = 0;
-            }
-            if (countyObj.forecast < 0) {
-              countyObj.forecast = 0;
-            }
-            return countyObj['Country/Region'] +
-            '<br/>' + 'New Cases: ' + countyObj.actualDelta + ' (Forecasted: ' + countyObj.forecastDelta + ')' +
-            '<br/>' + 'Total Cases: ' + countyObj.actual + ' (Forecasted: ' + countyObj.forecast + ')'
-          }
-          return params['name'];
-      }}
+  getSeriesName(_data) {
+    return _data['Country/Region']
   }
 
 }

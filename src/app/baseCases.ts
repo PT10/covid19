@@ -83,8 +83,9 @@ export abstract class BaseCases implements OnInit, AfterViewInit, OnChanges {
       this.drilldownLineChartInstance = undefined;
   }
 
-  abstract setChartOptions();
+  setChartOptions() {};
   abstract processData(_data: any);
+  abstract getSeriesName(_data: any);
 
   ngOnInit() {
     $(window).resize((params) => {
@@ -106,6 +107,8 @@ export abstract class BaseCases implements OnInit, AfterViewInit, OnChanges {
     this.eventService.getObserver(EventNames.SET_ERROR).subscribe(data => {
       this.setError();
     });
+
+    this.changeChartTitle();
   }
 
   ngAfterViewInit() {
@@ -270,7 +273,50 @@ export abstract class BaseCases implements OnInit, AfterViewInit, OnChanges {
           color: 'white'
         },
         calculable: true
-      }]
+      }],
+      series: [{
+        name: 'County covid19 trends',
+        type: 'map',
+        roam: true,
+        map: this.mapType,
+        scaleLimit: {min: 1},
+        itemStyle: {
+          emphasis: {
+            label: {
+              show: false
+            },
+            areaColor: undefined,
+            borderType: 'solid',
+            shadowColor: 'rgba(0, 0, 0, 0.8)',
+            shadowBlur: 20
+          }
+        },
+        data: this.processedSeriesData
+      }],
+      tooltip: {
+        trigger: 'item',
+        formatter: function(params) {
+          let countyObj = me.seriesData.find(d => {
+            return me.getSeriesName(d) === params['name']
+          });
+
+          if (countyObj) {
+            countyObj = JSON.parse(JSON.stringify(countyObj));
+            if (countyObj.forecastDelta < 0) {
+              countyObj.forecastDelta = 0;
+            }
+            if (countyObj.forecast < 0) {
+              countyObj.forecast = 0;
+            }
+
+            const type = me.chartType.toLowerCase() === 'confirmed' ? 'cases' : 'deaths';
+            const name = me.mapType === 'india' ? indiaStateCodes[me.getSeriesName(countyObj)] : me.getSeriesName(countyObj);
+            return name +
+            '<br/>' + 'New ' + type + ': ' + countyObj.actualDelta + ' (Forecasted: ' + countyObj.forecastDelta + ')' +
+            '<br/>' + 'Total ' + type + ': ' + countyObj.actual + ' (Forecasted: ' + countyObj.forecast + ')'
+          }
+          return params['name'];
+      }}
     }
   }
 
@@ -295,7 +341,7 @@ export abstract class BaseCases implements OnInit, AfterViewInit, OnChanges {
    // Add all dates to create x axis series
    const currentDate = new Date(this.config.latestDataDate);
    const dates = [];
-   for (let i = actualHistorical.length - 1; i > 0 ; i--) { // 1 becaue 0th is actual (current)
+   for (let i = actualHistorical.length - 1; i > 0 ; i--) { // -1 becaue 0th is actual (current)
      const temp = new Date(currentDate);
      temp.setDate(temp.getDate() - i)
      dates.push(Utils.formatDate(temp));
@@ -309,11 +355,28 @@ export abstract class BaseCases implements OnInit, AfterViewInit, OnChanges {
 
    const seriesData = [];
    for (let i = 0; i < actual.length; i++) {
+    let lower = lowerbaseline[i];
+    let upper = upperBaseline[i]
+    let forecast = actual[i];
+    let actualVal = series.actual;
+
+    if (lower < actualVal) {
+      lower = actualVal;
+    } else if(lower > forecast) {
+      lower = forecast
+    }
+
+    if (upper < actualVal) {
+      upper = actualVal
+    } else if (upper < forecast) {
+      upper = forecast
+    }
+
     seriesData.push( {
-        actual: actual[i],
-        lower: lowerbaseline[i],
-        upper: upperBaseline[i]
-     });
+      actual: forecast,
+      lower: lower,
+      upper: upper
+    });
    }
 
    return {
@@ -370,12 +433,9 @@ export abstract class BaseCases implements OnInit, AfterViewInit, OnChanges {
           // Lower confidence band
           name: 'Lower',
           type: 'line',
-          data: seriesData.map(d =>  {
-            if (d.lower < series.actual) {
-              return series.actual
-            }
+          data: this.config.showBaseline ? seriesData.map(d =>  {
             return d.lower;
-          }),
+          }): [],
           lineStyle: {
               opacity: 0
           },
@@ -385,12 +445,9 @@ export abstract class BaseCases implements OnInit, AfterViewInit, OnChanges {
         // Upper confidence band
           name: 'Upper',
           type: 'line',
-          data: seriesData.map(d => {
-            if (d.upper < d.actual) {
-              return d.actual - d.lower
-            }
+          data: this.config.showBaseline ?  seriesData.map(d => {
             return d.upper - d.lower;
-          }),
+          }) : [],
           lineStyle: {
               opacity: 0
           },

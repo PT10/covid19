@@ -4,5 +4,6 @@
     "numDaysOnSlider": 15,
     "numDaysInFurure": 0,
     "worstPerformanceFactor": 0.5,
-    "chartRunDelayInMS": 2000
+    "chartRunDelayInMS": 2000,
+    "showBaseline": true
 }
