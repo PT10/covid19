@@ -7,6 +7,8 @@ import { ConfigService } from './services/config.service';
 import { AppEventService } from './events/app-event.service';
 import { EventNames } from './events/EventNames';
 import { BaseCases } from './baseCases';
+import { ngModuleJitUrl } from '@angular/compiler';
+import { Utils } from './utils';
 
 @Component({
   selector: 'my-app',
@@ -39,6 +41,8 @@ export class AppComponent implements OnInit  {
       if (params['date']) {
         const fmtDate = params['date'].replace(/_/g, '/');
         this.selectedDate = new Date(fmtDate);
+        
+        this.config.directLinkAccess = true;
       }
       if (params['view']) {
         this.view = params['view']
@@ -121,12 +125,66 @@ export class AppComponent implements OnInit  {
   }
 
   activateLink(_view) {
+    this.config.directLinkAccess = false;
     this.view = _view;
     if (BaseCases.initialLoading) {
       this.selectedDate = new Date(this.lastDay);
     }
     this.chartLoadingInProgress = true;
     this.worst = undefined;
+  }
+
+  share(_type) {
+    const myUrl = this.getMyUrl();
+    let shareLink;
+
+    switch (_type) {
+      case 'twitter' :
+        shareLink = this.getTwitterLink(myUrl);
+        break;
+      case 'fb':
+        shareLink = this.getFbLink(myUrl);
+        break;
+      case 'linkedin':
+        shareLink = this.getLinkedInLink(myUrl);
+        break;
+    }
+
+    var left = (screen.width/2) - 300;
+    var top = (screen.height/2) - 150;
+    window.open(shareLink, '_blank', 'width=' + (screen.width/2) + ',height=' + screen.height/2 + ',top=' + top + ',left=' + left);
+    return false;
+  }
+
+  getMyUrl(){
+    let myUrl: string = window.location.href // 'https://boltanalytics.com/covid-19';
+    console.log(myUrl);
+    if (!myUrl.includes('?')) {
+      myUrl += '?'
+    }
+    if (!myUrl.includes('view=')) {
+      myUrl += '&view=' + this.view
+    }
+    if (!myUrl.includes('date=')) {
+      myUrl += '&date=' + Utils.formatDateForFileName(this.selectedDate)
+    }
+    return myUrl;
+  }
+
+  getTwitterLink(_myUrl) {
+    return 'https://twitter.com/intent/tweet?&text=' + this.getTitle() + '&url=' + encodeURIComponent(_myUrl)
+  }
+
+  getFbLink(_myUrl) {
+    return 'https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(_myUrl) +'&t=' + this.getTitle() ;
+  }
+
+  getLinkedInLink(_myUrl) {
+    return 'http://www.linkedin.com/shareArticle?mini=true&url=' + encodeURIComponent(_myUrl)
+  }
+
+  getTitle() {
+    return encodeURIComponent('COVID-19 daily trends by Bolt Analytics');
   }
 
 }

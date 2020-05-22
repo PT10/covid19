@@ -5,6 +5,7 @@
   <title>Covid-19 daily trends</title>
   <base href="/covid-19/">
 
+  <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
   <style type="text/css">
      body, html {
       height: 100%;
@@ -72,6 +73,14 @@
     gtag('config', 'UA-159139924-1');
   </script>
   <link rel="icon" type="image/x-icon" href="assets/favicon.ico">
+
+  <script>
+    function shareOntwitter(){
+      var url = 'https://twitter.com/intent/tweet?url=URL_HERE&via=getboldify&text=yourtext';
+      TwitterWindow = window.open(url, 'TwitterWindow',width=60,height=30);
+      return false;
+    }
+  </script>
 
 </head>
 <body>

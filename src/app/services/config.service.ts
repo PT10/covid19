@@ -23,6 +23,15 @@ export class ConfigService {
     this._latestDataDate = _data;
   }
 
+  _directLinkAccess: boolean;
+  get directLinkAccess(): boolean {
+    return this._directLinkAccess;
+  }
+
+  set directLinkAccess(_isDirect: boolean) {
+    this._directLinkAccess = _isDirect;
+  }
+
   constructor(private dataService: RawDataProviderService,
     private eventService: AppEventService) {
 

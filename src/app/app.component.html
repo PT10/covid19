@@ -143,7 +143,10 @@
         </div>
       </div>
     </div>
-    <div class="row" style="margin-top: 30px; position: relative;">
+  </div>
+  
+  <footer class="page-footer font-small">
+    <div class="container-fluid" style="margin-top: 30px; position: relative;">
       <span style="font-size: 12px;">
         <i>Methodology: Each day we apply our forecast models on the updated data provided by
         <a style="color: #E04E39 !important;" href="https://github.com/CSSEGISandData/COVID-19/" target="_blank">
@@ -159,11 +162,15 @@
         </i>
       </span>
     </div>
-  </div>
-  
-  <footer class="page-footer font-small">
-    <div class="footer-copyright text-right" style="font-size: 12px !important">Powered By:
-      <a href="https://boltanalytics.com/" target="_blank" style="font-size: 12px !important;">Bolt Analytics</a>
+    <!-- <a href="https://twitter.com/share?ref_src=twsrc%5Etfw" class="twitter-share-button" data-show-count="false">Tweet</a> -->
+    
+    <div class="footer-copyright text-right">
+        <button type="button" class="fa fa-twitter icon" (click)="share('twitter')"> </button>
+        <button type="button" class="fa fa-facebook-f icon" (click)="share('fb')"> </button>
+        <button type="button" class="fa fa-linkedin icon" (click)="share('linkedin')"> </button>
+
+      <span style="font-size: 12px !important;">Powered By:
+      <a href="https://boltanalytics.com/" target="_blank">Bolt Analytics</a></span>
     </div>
   </footer>
 </div>

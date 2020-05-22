@@ -49,8 +49,6 @@ export abstract class BaseCases implements OnInit, AfterViewInit, OnChanges {
   // Used by US map components to set zoom for the first time each map is loaded
   firstTimeAccess = true;
 
-  directLink = false;
-
   selectedRegion: string = "";
 
   mapType: string;
@@ -70,14 +68,8 @@ export abstract class BaseCases implements OnInit, AfterViewInit, OnChanges {
   constructor(protected dataService: RawDataProviderService, 
     protected eventService: AppEventService,
     protected populationService: FetchPopulationService,
-    protected route: ActivatedRoute,
     protected config: ConfigService,
     protected ref: ChangeDetectorRef) {
-      this.route.queryParams.subscribe(params => {
-        if (params['date']) {
-          this.directLink = true;
-        }
-      });
 
       this.fileNameToken = this.config.fileNameToken;
       this.drilldownLineChartInstance = undefined;
@@ -145,7 +137,7 @@ export abstract class BaseCases implements OnInit, AfterViewInit, OnChanges {
       if (BaseCases.playStarted) { // If play is started stop the play and navigate to last date
         this.eventService.publish(EventNames.PLAY_STATUS_CHANGED, {started: false});
         this.eventService.publish(EventNames.NAVIGATE_BACK);
-      } else if (BaseCases.initialLoading && !this.directLink && this.numDaysOnSlider-- > 0) {
+      } else if (BaseCases.initialLoading && !this.config.directLinkAccess && this.numDaysOnSlider-- > 0) {
         //if (this.numDaysOnSlider-- !== 0) {
           this.eventService.publish(EventNames.NAVIGATE_BACK);
         //}

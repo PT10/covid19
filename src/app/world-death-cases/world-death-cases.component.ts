@@ -20,10 +20,9 @@ export class WorldDeathCasesComponent extends BaseCases {
   constructor(protected dataService: RawDataProviderService, 
     protected eventService: AppEventService,
     protected populationService: FetchPopulationService,
-    protected route: ActivatedRoute,
     protected config: ConfigService,
     protected ref: ChangeDetectorRef) {
-      super(dataService, eventService, populationService, route, config, ref);
+      super(dataService, eventService, populationService, config, ref);
 
       this.mapType = "globe";
       this.chartType = "deaths";
