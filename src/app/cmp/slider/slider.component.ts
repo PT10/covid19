@@ -144,6 +144,7 @@ export class SliderComponent implements OnInit, OnChanges {
   setSelectedDateIndex() {
     const diffTime = Math.abs(this.lastDay - this.selectedDate);
     this.selectedDateIndex = Math.round((this.numDays - (diffTime / (1000 * 60 * 60 * 24)))); //this.defaultSelectedIndex; //this.numDays;
+    $('.mat-slider-thumb-label-text').text(Utils.getDateMonth(this.selectedDate));
   }
 
 }

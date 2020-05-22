@@ -7,7 +7,6 @@ import { ConfigService } from './services/config.service';
 import { AppEventService } from './events/app-event.service';
 import { EventNames } from './events/EventNames';
 import { BaseCases } from './baseCases';
-import { ngModuleJitUrl } from '@angular/compiler';
 import { Utils } from './utils';
 
 @Component({
@@ -41,6 +40,8 @@ export class AppComponent implements OnInit  {
       if (params['date']) {
         const fmtDate = params['date'].replace(/_/g, '/');
         this.selectedDate = new Date(fmtDate);
+        this.selectedDate.setHours(23);
+        this.selectedDate.setMinutes(59);
         
         this.config.directLinkAccess = true;
       }
@@ -158,16 +159,12 @@ export class AppComponent implements OnInit  {
 
   getMyUrl(){
     let myUrl: string = window.location.href // 'https://boltanalytics.com/covid-19';
-    console.log(myUrl);
-    if (!myUrl.includes('?')) {
-      myUrl += '?'
+
+    if (myUrl.includes('?')) {
+      myUrl = myUrl.substr(0, myUrl.indexOf('?'))
     }
-    if (!myUrl.includes('view=')) {
-      myUrl += '&view=' + this.view
-    }
-    if (!myUrl.includes('date=')) {
-      myUrl += '&date=' + Utils.formatDateForFileName(this.selectedDate)
-    }
+    myUrl += '?view=' + this.view + '&date=' + Utils.formatDateForFileName(this.selectedDate)
+
     return myUrl;
   }
 
