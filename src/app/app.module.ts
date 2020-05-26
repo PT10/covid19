@@ -17,7 +17,7 @@ import { UsDeathCasesComponent } from './us-death-cases/us-death-cases.component
 import { WorldDeathCasesComponent } from './world-death-cases/world-death-cases.component';
 import { RawDataProviderService } from './services/raw-data-provider.service';
 import { ProgressBarComponent } from './cmp/progress-bar/progress-bar.component';
-import { MatProgressBarModule } from '@angular/material';
+import { MatProgressBarModule, MatDialogModule } from '@angular/material';
 import { SliderComponent } from './cmp/slider/slider.component';
 import { AppEventService } from './events/app-event.service';
 import { RouterModule } from '@angular/router';
@@ -25,15 +25,46 @@ import { FetchPopulationService } from './services/fetch-population.service';
 import { ConfigService } from './services/config.service';
 import { IndiaConfirmedCasesComponent } from './india-confirmed-cases/india-confirmed-cases.component';
 import { IndiaDeathCasesComponent } from './india-death-cases/india-death-cases.component';
+import { EmbedComponent } from './cmp/embed/embed.component';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { ClipboardModule } from 'ngx-clipboard';
 
 @NgModule({
-  imports:      [ BrowserModule, FormsModule, HttpModule, NgxEchartsModule,  RouterModule.forRoot([]),
-    HttpClientModule, MatSliderModule, MatProgressSpinnerModule, MatProgressBarModule ],
-  declarations: [ AppComponent, HelloComponent, UsconfirmedCasesComponent, WorldConfirmedCasesComponent, 
-    UsDeathCasesComponent, WorldDeathCasesComponent, ProgressBarComponent, SliderComponent, 
-    IndiaConfirmedCasesComponent, IndiaDeathCasesComponent],
+  imports:      [ 
+    BrowserModule, 
+    BrowserAnimationsModule,
+    FormsModule, 
+    HttpModule, 
+    NgxEchartsModule,  
+    RouterModule.forRoot([]),
+    HttpClientModule, 
+    MatSliderModule, 
+    MatProgressSpinnerModule, 
+    MatProgressBarModule, 
+    MatDialogModule,
+    ClipboardModule
+   ],
+  declarations: [ 
+    AppComponent, 
+    HelloComponent, 
+    UsconfirmedCasesComponent, 
+    WorldConfirmedCasesComponent, 
+    UsDeathCasesComponent, 
+    WorldDeathCasesComponent, 
+    ProgressBarComponent, 
+    SliderComponent, 
+    IndiaConfirmedCasesComponent, 
+    IndiaDeathCasesComponent, 
+    EmbedComponent],
+  entryComponents: [
+    EmbedComponent
+  ],
   bootstrap:    [ AppComponent ],
-  providers: [MapProviderService, RawDataProviderService, AppEventService, FetchPopulationService,
+  providers: [
+    MapProviderService, 
+    RawDataProviderService, 
+    AppEventService, 
+    FetchPopulationService,
     ConfigService]
 })
 export class AppModule { }

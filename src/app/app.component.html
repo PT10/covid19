@@ -1,110 +1,149 @@
 <div class="container-fluid">
-  <nav class="navbar navbar-expand-lg navbar-dark" style="border-bottom: 3px solid #E04E39;">
-    <a class="navbar-brand">
-      <img src="assets/brand-light.svg" height="30px" width="150px">
-    </a> 
-    <!-- <button class="navbar-toggler" type="button" data-toggle="collapse"   
-      data-target="#target" aria-controls="target" aria-expanded="false" 
-      aria-label="Toggle navigation" >
-      <span class="navbar-toggler-icon"></span>
-    </button>
-
-    <div class="collapse navbar-collapse"  id="target">
-      <ul class="navbar-nav mr-auto">
-        <li [ngClass]="view === 'worldConfirmed' ? 'nav-item active' : 'nav-item'">
-          <a class="nav-link" href="#" (click)="view = 'worldConfirmed'">World confirmed</a>
-        </li>
-        <li [ngClass]="view === 'worldDeaths' ? 'nav-item active' : 'nav-item'">
-          <a class="nav-link" href="#" (click)="view = 'worldDeaths'">World deaths</a>
-        </li>
-        <li [ngClass]="view === 'usConfirmed' ? 'nav-item active' : 'nav-item'">
-          <a class="nav-link" href="#" (click)="view = 'usConfirmed';">US confirmed</a>
-        </li>
-        <li [ngClass]="view === 'usDeaths' ? 'nav-item active' : 'nav-item'">
-          <a class="nav-link" href="#" (click)="view = 'usDeaths'">US deaths</a>
-        </li>
-      </ul>
-    </div> -->
-    <ul class="nav" style="padding-top: 10px">
-      <li [ngClass]="view === 'worldConfirmed' ? 'nav-item active' : 'nav-item'">
-        <a class="nav-link" (click)="activateLink('worldConfirmed')">World confirmed</a>
-      </li>
-      <li [ngClass]="view === 'worldDeaths' ? 'nav-item active' : 'nav-item'">
-        <a class="nav-link" (click)="activateLink('worldDeaths')">World deaths</a>
-      </li>
-      <li [ngClass]="view === 'usConfirmed' ? 'nav-item active' : 'nav-item'">
-        <a class="nav-link" (click)="activateLink('usConfirmed')">US confirmed</a>
-      </li>
-      <li [ngClass]="view === 'usDeaths' ? 'nav-item active' : 'nav-item'">
-        <a class="nav-link" (click)="activateLink('usDeaths')">US deaths</a>
-      </li>
-      <li [ngClass]="view === 'indiaConfirmed' ? 'nav-item active' : 'nav-item'">
-        <a class="nav-link" (click)="activateLink('indiaConfirmed')">India confirmed</a>
-      </li>
-      <li [ngClass]="view === 'indiaDeaths' ? 'nav-item active' : 'nav-item'">
-        <a class="nav-link" (click)="activateLink('indiaDeaths')">India deaths</a>
-      </li>
-    </ul>
-  </nav>
-  
-  <app-progress-bar [hidden]="configLoaded"></app-progress-bar>
-  <div *ngIf="configLoaded" class='container-fluid'>
-    <div class="row" style="margin-top: 10px">
-      <div class="col-sm text-right">
-          <app-slider thumbLanel 
-            [numDays]="numDaysOnSlider" 
-            (selectedDateChange)="chartLoadingInProgress = true; selectedDate = $event"
-            [selectedDate]="selectedDate"
-            [firstDay]="firstDay"
-            [lastDay]="lastDay"
-          ></app-slider>
-          <!-- [(selectedDate)]="selectedDate"  -->
-      </div>
-    </div>
-    <div class="row text-center" style="padding-top: 10px">
-      <div class="col">
-          <div class="charttitle" >
-            {{chartTitle}}
-            <span style="display: inline-block; width: 20px; height: 20px;">
-              <mat-progress-spinner *ngIf="chartLoadingInProgress" [ngStyle]="{'display': 'inline-block'}" 
-                mode="indeterminate" [diameter]="20"></mat-progress-spinner>
-            </span>
-          </div>
-      </div>
-    </div>
-    <div *ngIf="best && worst" class="row justify-content-start" style="margin-top: 10px;font-size: 12px;">
-      <!-- <div class="col-md-auto">
-        <span style="font-weight: bold;">Best performers: </span>
-        <span style="color: #02c102; font-weight: bold;">{{best}}</span>
-      </div> -->
-      <div class="col-md-auto">
-        <span style="font-weight: bold;">Most worsened: </span>
-        <span style="color: red; font-weight: bold;">{{worst}}</span>
-      </div>
-    </div>
-    <div class="row justify-content-end" style="margin-top: 10px;font-size: 12px;">
-      <div class="col-md-auto">
-        <span>As compared to past trend: </span>
-      </div>
-      <div class="col-md-auto">
-        <div class="row">
-          <div class="col-sm-auto">
-            <button type="button" class="legend-button" style="background: green;"></button>
-            <span>Improving</span>
-          </div>
-          <div class="col-sm-auto">
-            <button type="button" class="legend-button" style="background: yellow;"></button>
-            <span>Same</span>
-          </div>
-          <div class="col-sm-auto">
-            <button type="button" class="legend-button" style="background: red;"></button>
-            <span>Worsening</span>
+  <div [ngStyle]="fullScreen ? {} : {'display': 'none'}"> <!-- 'position': 'absolute', 'z-index': 10 -->
+      <div class="row">
+        <div class="col-xs-1">
+          <a class="navbar-brand" style="margin-left: 5px">
+            <img src="assets/brand-light.svg" height="30px" width="50px">
+          </a>
+        </div>
+        <div class="col">
+          <div class="text-center">
+            <label style="margin-top:5px; color: white; font-size: 16px; font-weight: bold;">
+              {{getFullScreenTitle()}}
+            </label>
           </div>
         </div>
       </div>
+  </div>
+  <div [ngStyle]="fullScreen ? {'display': 'none'} : {}">
+    <nav class="navbar navbar-expand-lg navbar-dark" style="border-bottom: 3px solid #E04E39;">
+      <a class="navbar-brand">
+        <img src="assets/brand-light.svg" height="30px" width="150px">
+      </a> 
+      <!-- <button class="navbar-toggler" type="button" data-toggle="collapse"   
+        data-target="#target" aria-controls="target" aria-expanded="false" 
+        aria-label="Toggle navigation" >
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div class="collapse navbar-collapse"  id="target">
+        <ul class="navbar-nav mr-auto">
+          <li [ngClass]="view === 'worldConfirmed' ? 'nav-item active' : 'nav-item'">
+            <a class="nav-link" href="#" (click)="view = 'worldConfirmed'">World confirmed</a>
+          </li>
+          <li [ngClass]="view === 'worldDeaths' ? 'nav-item active' : 'nav-item'">
+            <a class="nav-link" href="#" (click)="view = 'worldDeaths'">World deaths</a>
+          </li>
+          <li [ngClass]="view === 'usConfirmed' ? 'nav-item active' : 'nav-item'">
+            <a class="nav-link" href="#" (click)="view = 'usConfirmed';">US confirmed</a>
+          </li>
+          <li [ngClass]="view === 'usDeaths' ? 'nav-item active' : 'nav-item'">
+            <a class="nav-link" href="#" (click)="view = 'usDeaths'">US deaths</a>
+          </li>
+        </ul>
+      </div> -->
+      <ul class="nav" style="padding-top: 10px">
+        <li [ngClass]="view === 'worldConfirmed' ? 'nav-item active' : 'nav-item'">
+          <a class="nav-link" (click)="activateLink('worldConfirmed')">World confirmed</a>
+        </li>
+        <li [ngClass]="view === 'worldDeaths' ? 'nav-item active' : 'nav-item'">
+          <a class="nav-link" (click)="activateLink('worldDeaths')">World deaths</a>
+        </li>
+        <li [ngClass]="view === 'usConfirmed' ? 'nav-item active' : 'nav-item'">
+          <a class="nav-link" (click)="activateLink('usConfirmed')">US confirmed</a>
+        </li>
+        <li [ngClass]="view === 'usDeaths' ? 'nav-item active' : 'nav-item'">
+          <a class="nav-link" (click)="activateLink('usDeaths')">US deaths</a>
+        </li>
+        <li [ngClass]="view === 'indiaConfirmed' ? 'nav-item active' : 'nav-item'">
+          <a class="nav-link" (click)="activateLink('indiaConfirmed')">India confirmed</a>
+        </li>
+        <li [ngClass]="view === 'indiaDeaths' ? 'nav-item active' : 'nav-item'">
+          <a class="nav-link" (click)="activateLink('indiaDeaths')">India deaths</a>
+        </li>
+      </ul>
+    </nav>
+    
+    <app-progress-bar [hidden]="configLoaded"></app-progress-bar>
+    <div *ngIf="configLoaded" class='container-fluid'>
+      <div class="row" style="margin-top: 10px">
+        <div class="col-sm text-right">
+            <app-slider thumbLanel 
+              [numDays]="numDaysOnSlider" 
+              (selectedDateChange)="chartLoadingInProgress = true; selectedDate = $event"
+              [selectedDate]="selectedDate"
+              [firstDay]="firstDay"
+              [lastDay]="lastDay"
+            ></app-slider>
+            <!-- [(selectedDate)]="selectedDate"  -->
+        </div>
+      </div>
+      <div class="row text-center">
+        <div class="col">
+            <div class="charttitle" >
+              {{chartTitle}}
+              <span style="display: inline-block; width: 20px; height: 20px;">
+                <mat-progress-spinner *ngIf="chartLoadingInProgress" [ngStyle]="{'display': 'inline-block'}" 
+                  mode="indeterminate" [diameter]="20"></mat-progress-spinner>
+              </span>
+              <span>
+                <button type="button" class="fa fa-twitter icon" (click)="share('twitter')"> </button>
+                <button type="button" class="fa fa-facebook-f icon" (click)="share('fb')"> </button>
+                <button type="button" class="fa fa-linkedin icon" (click)="share('linkedin')"> </button>
+                <button type="button" class="fa fa-chain icon" (click)="onEmbed()" title="Embed URL"> </button>
+              </span>
+            </div>
+        </div>
+      </div>
+      <!-- <div class="row text-center">
+        <div class="col">
+          <span>
+            <button type="button" class="fa fa-twitter icon" (click)="share('twitter')"> </button>
+            <button type="button" class="fa fa-facebook-f icon" (click)="share('fb')"> </button>
+            <button type="button" class="fa fa-linkedin icon" (click)="share('linkedin')"> </button>
+            <button type="button" class="fa fa-chain icon" (click)="onEmbed()"> </button>
+          </span>
+        </div>
+      </div> -->
+      <div *ngIf="best && worst" class="row justify-content-start" style="margin-top: 10px;font-size: 12px;">
+        <!-- <div class="col-md-auto">
+          <span style="font-weight: bold;">Best performers: </span>
+          <span style="color: #02c102; font-weight: bold;">{{best}}</span>
+        </div> -->
+        <div class="col-md-auto">
+          <span style="font-weight: bold;">Most worsened: </span>
+          <span style="color: red; font-weight: bold;">{{worst}}</span>
+        </div>
+      </div>
+      <div class="row justify-content-end legend" [ngStyle]="drillDownState ? {'margin-top': '20px'} : {}">
+        <ng-container *ngIf="!drillDownState">
+          <div class="col-md-auto">
+            <span>As compared to past trend: </span>
+          </div>
+          <div class="col-md-auto">
+            <div class="row">
+              <div class="col-sm-auto">
+                <button type="button" class="legend-button" style="background: green;"></button>
+                <span>Improving</span>
+              </div>
+              <div class="col-sm-auto">
+                <button type="button" class="legend-button" style="background: yellow;"></button>
+                <span>Same</span>
+              </div>
+              <div class="col-sm-auto">
+                <button type="button" class="legend-button" style="background: red;"></button>
+                <span>Worsening</span>
+              </div>
+            </div>
+          </div>
+        </ng-container>
+      </div>
     </div>
-    <div class="row justify-content-center" style="height: 75%;">
-      <div class="col-sm-11 text-center" style="background: #063f6d;">
+  </div>
+
+  <div >
+    <div class="row justify-content-center" [ngStyle]="fullScreen ? {'height': '92%'} : {'height' : '75%'}">
+      <div [ngClass]="fullScreen ? 'col-sm-12 text-center' : 'col-sm-11 text-center'" [ngStyle]="fullScreen ? {} : {'background': '#063f6d'}">
         <div *ngIf="view === 'worldConfirmed'">
           <app-progress-bar [hidden]="globeMapRegistered"></app-progress-bar>
           <app-world-confirmed-cases *ngIf="globeMapRegistered" [selectedDate]="selectedDate" 
@@ -144,8 +183,7 @@
       </div>
     </div>
   </div>
-  
-  <footer class="page-footer font-small">
+  <footer class="page-footer font-small" [ngStyle]="fullScreen ? {'display': 'none'} : {}">
     <div class="container-fluid" style="margin-top: 30px; position: relative;">
       <span style="font-size: 12px;">
         <i>Methodology: Each day we apply our forecast models on the updated data provided by
@@ -165,10 +203,6 @@
     <!-- <a href="https://twitter.com/share?ref_src=twsrc%5Etfw" class="twitter-share-button" data-show-count="false">Tweet</a> -->
     
     <div class="footer-copyright text-right">
-        <button type="button" class="fa fa-twitter icon" (click)="share('twitter')"> </button>
-        <button type="button" class="fa fa-facebook-f icon" (click)="share('fb')"> </button>
-        <button type="button" class="fa fa-linkedin icon" (click)="share('linkedin')"> </button>
-
       <span style="font-size: 12px !important;">Powered By:
       <a href="https://boltanalytics.com/" target="_blank">Bolt Analytics</a></span>
     </div>

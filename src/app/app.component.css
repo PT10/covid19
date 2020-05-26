@@ -55,9 +55,15 @@ a {
 
 .icon {
   margin-left: 5px;
+  font-size: 12px;
   background-color: #1b95e0; 
   color: white; 
   cursor: pointer; 
   border: none; 
   border-radius: 3px;
+}
+
+.legend {
+  margin-top: 10px;
+  font-size: 12px;
 }

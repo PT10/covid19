@@ -7,7 +7,6 @@ import { RawDataProviderService } from './services/raw-data-provider.service';
 import { AppEventService } from './events/app-event.service';
 import { EventNames } from './events/EventNames';
 import { FetchPopulationService } from './services/fetch-population.service';
-import { ActivatedRoute } from '@angular/router';
 import { ConfigService } from './services/config.service';
 import { ChangeDetectorRef } from '@angular/core';
 import { indiaStateCodes } from './map-provider.service';
@@ -49,7 +48,7 @@ export abstract class BaseCases implements OnInit, AfterViewInit, OnChanges {
   // Used by US map components to set zoom for the first time each map is loaded
   firstTimeAccess = true;
 
-  selectedRegion: string = "";
+  selectedRegion: string = undefined;
 
   mapType: string;
   chartType: string;
@@ -64,6 +63,8 @@ export abstract class BaseCases implements OnInit, AfterViewInit, OnChanges {
   static initialLoading = true;
 
   static playStarted: boolean;
+
+  expanded = false;
 
   constructor(protected dataService: RawDataProviderService, 
     protected eventService: AppEventService,
@@ -81,11 +82,7 @@ export abstract class BaseCases implements OnInit, AfterViewInit, OnChanges {
 
   ngOnInit() {
     $(window).resize((params) => {
-      if (this.selectedRegion) {
-        this.drilldownLineChartInstance.resize();
-      } else {
-        this.chartInstance.resize();
-      }
+      this.resize();
     });
 
     this.eventService.getObserver(EventNames.PLAY_STATUS_CHANGED).subscribe(data => {
@@ -198,7 +195,15 @@ export abstract class BaseCases implements OnInit, AfterViewInit, OnChanges {
     this.setChartOptions();
 
     this.chartInstance.setOption(this.chartOption);
+    if (this.expanded) {
+      this.chartInstance.setOption({title: this.getChartTitle()})
+    }
+
     this.chartInstance.on('click', (data) => {
+      if (!data || !data.data || !data.data.name) {
+        return;
+      }
+      this.eventService.publish(EventNames.CHART_DRILLDOWN, {state: true});
       this.selectedRegion = data.data.name;
       this.initDrilldown();
     });
@@ -237,23 +242,12 @@ export abstract class BaseCases implements OnInit, AfterViewInit, OnChanges {
   getChartOptions(): EChartOption {
     const me = this;
     return {
-      /*backgroundColor: '#003865',
-      title: {
-        text: me.chartTitle + ' (' + 
-          Utils.formatDate(me.selectedDate) + ')',
-        left: 'center',
-        top: 0,
-        itemGap: 0,
-        textStyle: {
-            color: '#eee'
-      }},*/
       visualMap: [{
         left: 'right',
-        top: 'top',
+        top: '15',
         orient: 'horizontal',
         min: me.maxVal,
         max: me.minVal,
-        //itemHeight: 200,
         itemWidth: 10,
         textGap: 20,
         inRange: {
@@ -285,6 +279,7 @@ export abstract class BaseCases implements OnInit, AfterViewInit, OnChanges {
         },
         data: this.processedSeriesData
       }],
+      toolbox: this.config.embedMode ? {} : this.getToolbox(),
       tooltip: {
         trigger: 'item',
         formatter: function(params) {
@@ -370,8 +365,8 @@ export abstract class BaseCases implements OnInit, AfterViewInit, OnChanges {
       upper: upper
     });
    }
-
    return {
+        title: this.getDrilldownChartTitle(this.expanded),
         tooltip: {
           trigger: 'axis',
           formatter: function (params) {
@@ -420,6 +415,7 @@ export abstract class BaseCases implements OnInit, AfterViewInit, OnChanges {
       grid: {
         containLabel: true
       },
+      toolbox: this.config.embedMode ? {} : this.getToolbox(),
       series: [
         {
           // Lower confidence band
@@ -465,7 +461,7 @@ export abstract class BaseCases implements OnInit, AfterViewInit, OnChanges {
             symbolSize: 10,
             label: {
               formatter: 'Actual',
-              position: 'bottom',
+              position: 'top',
               color: 'white'
             },
             data: [{
@@ -490,7 +486,7 @@ export abstract class BaseCases implements OnInit, AfterViewInit, OnChanges {
           symbol: 'circle',
           symbolSize: 10,
           label: {
-            formatter: 'Forecasted',
+            formatter: 'Forecast',
             position: 'bottom',
             color: 'white'
           },
@@ -502,12 +498,12 @@ export abstract class BaseCases implements OnInit, AfterViewInit, OnChanges {
     }
   }
 
-  drilldownBackClicked(event) {
+  drilldownBackClicked() {
+    this.eventService.publish(EventNames.CHART_DRILLDOWN, {state: false});
     this.selectedRegion = undefined; 
     this.errorMessage = undefined;
     this.ref.detectChanges();
     this.chartInstance.resize();
-
   }
 
   processDataJson(_data: string): any[] {
@@ -550,5 +546,126 @@ export abstract class BaseCases implements OnInit, AfterViewInit, OnChanges {
 
   setError(_error?: string) {
     this.errorMessage = _error ? _error : 'No data found for ' + Utils.formatDate(this.selectedDate);
+  }
+
+  resize() {
+    if (this.selectedRegion) {
+      this.drilldownLineChartInstance.resize();
+    } else {
+      this.chartInstance.resize();
+    }
+  }
+
+  getToolbox() {
+    return {
+      show:true,
+      left: 'auto',
+      top: 20,
+      feature: {
+         myFeature: {
+          show: true,
+          title: this.expanded ? 'Exit full screen' : 'Full screen',
+          icon: this.expanded ? this.getCollapseImage() : this.getExpandImage(),
+          iconStyle :{
+            borderColor: 'white',
+            opacity: 0.8
+          },
+          emphasis: {
+            iconStyle: {
+              borderColor: '#E04E39'
+            },
+            textStyle: {
+              color: 'white',
+              textAlign: 'left'
+            }
+          },
+          onclick: (a,b,c,event) => {
+            event.stop();
+            let state = true
+            if (this.expanded) {
+              this.expanded = false;
+              state = false;
+              this.chartInstance.setOption(this.getExpandTool());
+              //this.chartInstance.setOption({title: {text: undefined}});
+              if (this.selectedRegion) {
+                this.drilldownLineChartInstance.setOption(this.getExpandTool())
+                //this.drilldownLineChartInstance.setOption({title: this.getDrilldownChartTitle()})
+              }
+            } else {
+              this.expanded = true;
+              this.chartInstance.setOption(this.getCollapseTool());
+              //this.chartInstance.setOption({title: this.getChartTitle()});
+              if (this.selectedRegion) {
+                this.drilldownLineChartInstance.setOption(this.getCollapseTool())
+                //this.drilldownLineChartInstance.setOption({title: this.getDrilldownChartTitle(true)})
+              }
+            }
+            this.eventService.publish(EventNames.FULL_SCREEN_MODE, {state: state});
+            setTimeout(() => {
+              this.resize();
+            }, 10)
+          }
+        }
+      }
+    }
+  }
+
+  getExpandTool() {
+    return {toolbox: {
+      feature: {
+        myFeature: {
+          title: 'Full screen',
+          icon: this.getExpandImage(),
+          iconStyle: {
+            borderColor: 'white'
+          }
+        }
+      }}
+    }
+  }
+
+  getCollapseTool() {
+    return {toolbox: {
+      feature: {
+          myFeature: {
+            icon: this.getCollapseImage(),
+            title: 'Exit full screen',
+            iconStyle: {
+              borderColor: 'white'
+            },
+          }
+      }}
+    }
+  }
+
+  getChartTitle() {
+    return {
+      text: this.mapType + ' ' + this.chartType + ' (' + Utils.formatDate(this.selectedDate) + ')',
+      textStyle: {
+        color: 'white'
+      },
+      left: 'center'
+    }
+  }
+
+  getDrilldownChartTitle(_includeDate?: boolean) {
+    const region = this.mapType === 'india' ? indiaStateCodes[this.selectedRegion] : this.selectedRegion;
+    return {
+      text: region, //+ ' ' + this.chartType + (_includeDate ? ' (' + Utils.formatDate(this.selectedDate) + ')' : ''),
+      subtext: 'Actual and Forecast for next week',
+      textStyle: {
+        color: 'white',
+        fontSize: 16
+      },
+      left: 'center'
+    }
+  }
+
+  getExpandImage() {
+    return 'path://M384.97,12.03c0-6.713-5.317-12.03-12.03-12.03H264.847c-6.833,0-11.922,5.39-11.934,12.223    c0,6.821,5.101,11.838,11.934,11.838h96.062l-0.193,96.519c0,6.833,5.197,12.03,12.03,12.03c6.833-0.012,12.03-5.197,12.03-12.03    l0.193-108.369c0-0.036-0.012-0.06-0.012-0.084C384.958,12.09,384.97,12.066,384.97,12.03z M120.496,0H12.403c-0.036,0-0.06,0.012-0.096,0.012C12.283,0.012,12.247,0,12.223,0C5.51,0,0.192,5.317,0.192,12.03    L0,120.399c0,6.833,5.39,11.934,12.223,11.934c6.821,0,11.838-5.101,11.838-11.934l0.192-96.339h96.242    c6.833,0,12.03-5.197,12.03-12.03C132.514,5.197,127.317,0,120.496,0z M120.123,360.909H24.061v-96.242c0-6.833-5.197-12.03-12.03-12.03S0,257.833,0,264.667v108.092    c0,0.036,0.012,0.06,0.012,0.084c0,0.036-0.012,0.06-0.012,0.096c0,6.713,5.317,12.03,12.03,12.03h108.092    c6.833,0,11.922-5.39,11.934-12.223C132.057,365.926,126.956,360.909,120.123,360.909z M372.747,252.913c-6.833,0-11.85,5.101-11.838,11.934v96.062h-96.242c-6.833,0-12.03,5.197-12.03,12.03    s5.197,12.03,12.03,12.03h108.092c0.036,0,0.06-0.012,0.084-0.012c0.036-0.012,0.06,0.012,0.096,0.012    c6.713,0,12.03-5.317,12.03-12.03V264.847C384.97,258.014,379.58,252.913,372.747,252.913z'
+  }
+
+  getCollapseImage() {
+    return 'path://M264.943,156.665h108.273c6.833,0,11.934-5.39,11.934-12.211c0-6.833-5.101-11.85-11.934-11.838h-96.242V36.181    c0-6.833-5.197-12.03-12.03-12.03s-12.03,5.197-12.03,12.03v108.273c0,0.036,0.012,0.06,0.012,0.084    c0,0.036-0.012,0.06-0.012,0.096C252.913,151.347,258.23,156.677,264.943,156.665z M120.291,24.247c-6.821,0-11.838,5.113-11.838,11.934v96.242H12.03c-6.833,0-12.03,5.197-12.03,12.03    c0,6.833,5.197,12.03,12.03,12.03h108.273c0.036,0,0.06-0.012,0.084-0.012c0.036,0,0.06,0.012,0.096,0.012    c6.713,0,12.03-5.317,12.03-12.03V36.181C132.514,29.36,127.124,24.259,120.291,24.247z M120.387,228.666H12.115c-6.833,0.012-11.934,5.39-11.934,12.223c0,6.833,5.101,11.85,11.934,11.838h96.242v96.423    c0,6.833,5.197,12.03,12.03,12.03c6.833,0,12.03-5.197,12.03-12.03V240.877c0-0.036-0.012-0.06-0.012-0.084    c0-0.036,0.012-0.06,0.012-0.096C132.418,233.983,127.1,228.666,120.387,228.666z M373.3,228.666H265.028c-0.036,0-0.06,0.012-0.084,0.012c-0.036,0-0.06-0.012-0.096-0.012    c-6.713,0-12.03,5.317-12.03,12.03v108.273c0,6.833,5.39,11.922,12.223,11.934c6.821,0.012,11.838-5.101,11.838-11.922v-96.242    H373.3c6.833,0,12.03-5.197,12.03-12.03S380.134,228.678,373.3,228.666z'
   }
 }

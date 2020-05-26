@@ -32,6 +32,15 @@ export class ConfigService {
     this._directLinkAccess = _isDirect;
   }
 
+  _embedMode: boolean;
+  get embedMode(): boolean {
+    return this._embedMode;
+  }
+
+  set embedMode(_embed: boolean) {
+    this._embedMode = _embed;
+  }
+
   constructor(private dataService: RawDataProviderService,
     private eventService: AppEventService) {
 

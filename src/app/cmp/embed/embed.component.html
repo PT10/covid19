@@ -1,0 +1,11 @@
+<div class="card" style="background-color: #003865; font-size: 14px">
+  <div class="card-body">
+    <label style="font-size: 16px;">Embed URL:</label>
+    <textarea [(ngModel)]="link" style="width: 100%; resize: none;"></textarea>
+  </div>
+  <div class="card-footer text-muted">
+    <button class="btn btn-sm float-left" (click)="close()" style="background-color: green; color: white">Close</button>
+    <button class="btn btn-sm float-right" (click)="copy()" style="background-color: green; color: white">Copy to clipboard</button>
+  </div>
+</div>
+

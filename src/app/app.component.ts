@@ -8,6 +8,8 @@ import { AppEventService } from './events/app-event.service';
 import { EventNames } from './events/EventNames';
 import { BaseCases } from './baseCases';
 import { Utils } from './utils';
+import { MatDialog } from '@angular/material';
+import { EmbedComponent } from './cmp/embed/embed.component';
 
 @Component({
   selector: 'my-app',
@@ -32,10 +34,14 @@ export class AppComponent implements OnInit  {
   best;
   worst;
 
+  fullScreen = false;
+  drillDownState = false;
+
   constructor(private dataService: RawDataProviderService, 
     private route: ActivatedRoute,
     private config: ConfigService,
-    private eventService: AppEventService) {
+    private eventService: AppEventService,
+    private dialog: MatDialog) {
     this.route.queryParams.subscribe(params => {
       if (params['date']) {
         const fmtDate = params['date'].replace(/_/g, '/');
@@ -48,6 +54,10 @@ export class AppComponent implements OnInit  {
       if (params['view']) {
         this.view = params['view']
       }
+      if (params['embed'] === 'true') {
+        this.fullScreen = true;
+        this.config.embedMode = true;
+      }
     });
     this.eventService.getObserver(EventNames.CONFIG_LOADED).subscribe(() => {
       this.onConfigLoad();
@@ -55,6 +65,12 @@ export class AppComponent implements OnInit  {
     this.eventService.getObserver(EventNames.CHART_LOAING_COMPLETE).subscribe(() => {
       this.chartLoadingInProgress = false;
     });
+    this.eventService.getObserver(EventNames.FULL_SCREEN_MODE).subscribe((data) => {
+      this.fullScreen = data.state;
+    });
+    this.eventService.getObserver(EventNames.CHART_DRILLDOWN).subscribe(data => {
+      this.drillDownState = data.state;
+    })
   }
 
   onConfigLoad() {
@@ -135,6 +151,12 @@ export class AppComponent implements OnInit  {
     this.worst = undefined;
   }
 
+  getFullScreenTitle() {
+    const result = this.view.replace( /([A-Z])/g, " $1" );
+    const viewName = result.charAt(0).toUpperCase() + result.slice(1);
+    return viewName + ' - ' + Utils.formatDate(this.selectedDate);  
+  }
+
   share(_type) {
     const myUrl = this.getMyUrl();
     let shareLink;
@@ -157,12 +179,18 @@ export class AppComponent implements OnInit  {
     return false;
   }
 
-  getMyUrl(){
-    let myUrl: string = window.location.href // 'https://boltanalytics.com/covid-19';
+  onEmbed() {
+    this.dialog.open(EmbedComponent, {
+      disableClose: true, 
+      data: {date: this.selectedDate, view: this.view}, 
+      height: '179px', 
+      width: '60%',
+      backdropClass: 'panel-bg'
+    });
+  }
 
-    if (myUrl.includes('?')) {
-      myUrl = myUrl.substr(0, myUrl.indexOf('?'))
-    }
+  getMyUrl(){
+    let myUrl: string = Utils.getAbsoluteUrl();
     myUrl += '?view=' + this.view + '&date=' + Utils.formatDateForFileName(this.selectedDate)
 
     return myUrl;

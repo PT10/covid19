@@ -5,5 +5,7 @@ export const EventNames = {
   NAVIGATE_BACK: "navigateBack",
   PLAY_STATUS_CHANGED: "playStatusChanged",
   SLIDER_RESET: "sliderReset",
-  SET_ERROR: "setError"
+  SET_ERROR: "setError",
+  FULL_SCREEN_MODE: "embed",
+  CHART_DRILLDOWN: 'chartDrilldown'
 }
