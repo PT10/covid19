@@ -8,8 +8,8 @@ import { ConfigService } from '../services/config.service';
 
 @Component({
   selector: 'app-us-death-cases',
-  templateUrl: './us-death-cases.component.html',
-  styleUrls: ['./us-death-cases.component.css']
+  templateUrl: '../report.html',
+  styleUrls: ['../report.css']
 })
 export class UsDeathCasesComponent extends BaseCases {
 

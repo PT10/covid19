@@ -9,8 +9,8 @@ import { indiaStateCodes } from '../map-provider.service';
 
 @Component({
   selector: 'app-india-death-cases',
-  templateUrl: './india-death-cases.component.html',
-  styleUrls: ['./india-death-cases.component.css']
+  templateUrl: '../report.html',
+  styleUrls: ['../report.css']
 })
 export class IndiaDeathCasesComponent extends BaseCases {
 

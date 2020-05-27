@@ -9,8 +9,8 @@ import { ConfigService } from '../services/config.service';
 
 @Component({
   selector: 'app-us-confirmed-cases',
-  templateUrl: './us-confirmed-cases.component.html',
-  styleUrls: ['./us-confirmed-cases.component.css']
+  templateUrl: '../report.html',
+  styleUrls: ['../report.css']
 })
 export class UsconfirmedCasesComponent extends BaseCases {
 

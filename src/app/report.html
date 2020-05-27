@@ -1,11 +1,11 @@
 <ng-container *ngIf="errorMessage">
-  <div class="card bg-danger">
-    <div class="card-header">
-      <span style="margin-left:2px">
-        <a style="color: white !important">{{errorMessage}}</a>
-      </span>
+    <div class="card bg-danger">
+        <div class="card-header">
+          <span style="margin-left:2px">
+            <a style="color: white !important">{{errorMessage}}</a>
+          </span>
+        </div>
     </div>
-  </div>
 </ng-container>
 <div #charts [ngClass]="errorMessage || selectedRegion ? 'hidden': 'demo-chart'" style="height: 100%;"></div>
 <div style="position: relative;">
@@ -17,5 +17,5 @@
   </div>
   <app-progress-bar [hidden]="!drilldownInProgress || errorMessage"></app-progress-bar>
   <div #charts2 [ngClass]="selectedRegion && !drilldownInProgress && !errorMessage ? '': 'hidden'" 
-    style="height: 90%; position: relative;"></div>
+    style="height: 100%; position: relative;"></div>
 </div>

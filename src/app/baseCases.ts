@@ -334,7 +334,7 @@ export abstract class BaseCases implements OnInit, AfterViewInit, OnChanges {
      dates.push(Utils.formatDate(temp));
    }
    dates.push(Utils.formatDate(this.config.latestDataDate));
-   for (let i = 1; i < 7; i++) {
+   for (let i = 1; i < forecastCases.length + 1; i++) {
     const temp = new Date(currentDate);
     temp.setDate(temp.getDate() + i)
     dates.push(Utils.formatDate(temp));
@@ -503,7 +503,10 @@ export abstract class BaseCases implements OnInit, AfterViewInit, OnChanges {
     this.selectedRegion = undefined; 
     this.errorMessage = undefined;
     this.ref.detectChanges();
-    this.chartInstance.resize();
+    setTimeout(() => {
+      this.chartInstance.resize();
+    }, 50);
+    
   }
 
   processDataJson(_data: string): any[] {
@@ -567,8 +570,7 @@ export abstract class BaseCases implements OnInit, AfterViewInit, OnChanges {
           title: this.expanded ? 'Exit full screen' : 'Full screen',
           icon: this.expanded ? this.getCollapseImage() : this.getExpandImage(),
           iconStyle :{
-            borderColor: 'white',
-            opacity: 0.8
+            borderColor: 'white'
           },
           emphasis: {
             iconStyle: {
