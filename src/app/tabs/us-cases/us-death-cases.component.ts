@@ -1,20 +1,18 @@
 import { Component, ChangeDetectorRef } from '@angular/core';
 import { BaseCases } from '../baseCases';
-import { RawDataProviderService } from '../services/raw-data-provider.service';
-import { AppEventService } from '../events/app-event.service';
-import { FetchPopulationService } from '../services/fetch-population.service';
+import { RawDataProviderService } from '../../services/raw-data-provider.service';
+import { AppEventService } from '../../events/app-event.service';
+import { FetchPopulationService } from '../../services/fetch-population.service';
 import { ActivatedRoute } from '@angular/router';
-import { ConfigService } from '../services/config.service';
-
+import { ConfigService } from '../../services/config.service';
 
 @Component({
-  selector: 'app-us-confirmed-cases',
+  selector: 'app-us-death-cases',
   templateUrl: '../report.html',
   styleUrls: ['../report.css']
 })
-export class UsconfirmedCasesComponent extends BaseCases {
+export class UsDeathCasesComponent extends BaseCases {
 
-  //usMap = this.processCountyNames();
   relocatedCounties;
   selectedDateIndex: number;
   inProgress = false;
@@ -27,9 +25,9 @@ export class UsconfirmedCasesComponent extends BaseCases {
       super(dataService, eventService, populationService, config,ref);
 
       this.mapType = "us";
-      this.chartType = "confirmed";
-      this.chartTitle = 'Covid-19 daily US confirmed trends by county';
-      this.fileNameTemplate = this.dataFolder + '/result_' + this.fileNameToken + '_time_series_covid19_confirmed_US_';
+      this.chartType = "deaths";
+      this.chartTitle = 'Covid-19 daily US death trends by county';
+      this.fileNameTemplate = this.dataFolder + '/result_' + this.fileNameToken + '_time_series_covid19_deaths_US_';
   }
 
   processData(_data: any) {
@@ -42,16 +40,8 @@ export class UsconfirmedCasesComponent extends BaseCases {
         actualDeltas.push(data.actualDelta - data.forecastDelta);
       });
 
-      actualDeltas = actualDeltas.sort((a, b) => {return b - a});
-      this.maxVal = actualDeltas[0];
-      this.minVal = actualDeltas[actualDeltas.length - 1];
-
-      if (this.maxVal > (-1 * this.minVal)) {
-        this.minVal = -1 * this.maxVal;
-      } else {
-        this.maxVal = -1 * this.minVal;
-      }
-
+      this.setMinMaxForVisualMap(actualDeltas);
+      
       this.processedSeriesData = [];
       this.seriesData.map(data => {
         if (!data['Admin2']) {
@@ -63,7 +53,7 @@ export class UsconfirmedCasesComponent extends BaseCases {
         }else {
           val = data.actualDelta - data.forecastDelta
         }
-        this.processedSeriesData.push({name: data['Admin2'] + ' (' + data['Province_State'] + ')', value: val});
+        this.processedSeriesData.push({name: this.getSeriesName(data), value: val});
       });
   }
 
@@ -79,4 +69,14 @@ export class UsconfirmedCasesComponent extends BaseCases {
   getSeriesName(_data) {
     return _data['Admin2'] + ' (' + _data['Province_State'] + ')'
   }
+
+  getDrilldownDataFileUrl() {
+    return this.dataFolder + '/result_' + this.fileNameToken + '_' +
+    this.selectedRegion + '_time_series_covid19_' + this.chartType + '_US.json';
+  }
+
+  getResolvedRegionName(_regionName) {
+    return _regionName;
+  }
+
 }

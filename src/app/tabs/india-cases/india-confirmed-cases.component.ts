@@ -1,11 +1,11 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { BaseCases } from '../baseCases';
-import { RawDataProviderService } from '../services/raw-data-provider.service';
-import { AppEventService } from '../events/app-event.service';
-import { FetchPopulationService } from '../services/fetch-population.service';
+import { RawDataProviderService } from '../../services/raw-data-provider.service';
+import { AppEventService } from '../../events/app-event.service';
+import { FetchPopulationService } from '../../services/fetch-population.service';
 import { ActivatedRoute } from '@angular/router';
-import { ConfigService } from '../services/config.service';
-import { indiaStateCodes } from '../map-provider.service';
+import { ConfigService } from '../../services/config.service';
+import { indiaStateCodes } from '../../services/map-provider.service';
 
 @Component({
   selector: 'app-india-confirmed-cases',
@@ -37,15 +37,7 @@ export class IndiaConfirmedCasesComponent extends BaseCases {
         actualDeltas.push(data.actualDelta - data.forecastDelta);
       });
 
-      actualDeltas = actualDeltas.sort((a, b) => {return b - a});
-      this.maxVal = actualDeltas[0];
-      this.minVal = actualDeltas[actualDeltas.length - 1];
-
-      if (this.maxVal > (-1 * this.minVal)) {
-        this.minVal = -1 * this.maxVal;
-      } else {
-        this.maxVal = -1 * this.minVal;
-      }
+      this.setMinMaxForVisualMap(actualDeltas);
       
       this.processedSeriesData = [];
       this.seriesData.map(data => {
@@ -58,16 +50,25 @@ export class IndiaConfirmedCasesComponent extends BaseCases {
         }else {
           val = data.actualDelta - data.forecastDelta
         }
-        this.processedSeriesData.push({name: data['State'], value: val});
+        this.processedSeriesData.push({name: this.getSeriesName(data), value: val});
       });
   }
 
-  getStateFullName(_abb) {
-    return indiaStateCodes[_abb];
-  }
+  // getStateFullName(_abb) {
+  //   return indiaStateCodes[_abb];
+  // }
 
   getSeriesName(_data) {
     return _data['State']
+  }
+
+  getDrilldownDataFileUrl() {
+    return this.dataFolder + '/result_' + this.fileNameToken + '_' +
+    this.selectedRegion + ' (India)_state_wise_daily_' + this.chartType + '.json';
+  }
+
+  getResolvedRegionName(_regionName) {
+    return indiaStateCodes[_regionName];
   }
 
 }

@@ -4,7 +4,7 @@ import { AppEventService } from '../../events/app-event.service';
 import { EventNames } from '../../events/EventNames';
 import * as $ from 'jquery';
 import { MatSliderChange } from '@angular/material';
-import { BaseCases } from '../../baseCases';
+import { BaseCases } from '../../tabs/baseCases';
 import { ConfigService } from '../../services/config.service';
 
 @Component({

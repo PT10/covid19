@@ -2,14 +2,13 @@ import { Input, OnInit, AfterViewInit, ViewChild, OnChanges, Output, EventEmitte
 import { EChartOption } from 'echarts';
 import * as echarts from 'echarts/lib/echarts';
 import * as $ from 'jquery';
-import { Utils } from './utils';
-import { RawDataProviderService } from './services/raw-data-provider.service';
-import { AppEventService } from './events/app-event.service';
-import { EventNames } from './events/EventNames';
-import { FetchPopulationService } from './services/fetch-population.service';
-import { ConfigService } from './services/config.service';
+import { Utils } from '../utils';
+import { RawDataProviderService } from '../services/raw-data-provider.service';
+import { AppEventService } from '../events/app-event.service';
+import { EventNames } from '../events/EventNames';
+import { FetchPopulationService } from '../services/fetch-population.service';
+import { ConfigService } from '../services/config.service';
 import { ChangeDetectorRef } from '@angular/core';
-import { indiaStateCodes } from './map-provider.service';
 
 export abstract class BaseCases implements OnInit, AfterViewInit, OnChanges {
   seriesData = [];
@@ -26,8 +25,6 @@ export abstract class BaseCases implements OnInit, AfterViewInit, OnChanges {
   drilldownLineChartInstance;
   fileNameTemplate: string;
   fileNameToken = 'delta2';
-  //dayIndex = 7;
-
   dataFolder = "data"
 
   @Input()
@@ -66,6 +63,11 @@ export abstract class BaseCases implements OnInit, AfterViewInit, OnChanges {
 
   expanded = false;
 
+  abstract processData(_data: any);
+  abstract getSeriesName(_data: any);
+  abstract getResolvedRegionName(_data: any);
+  abstract getDrilldownDataFileUrl();
+
   constructor(protected dataService: RawDataProviderService, 
     protected eventService: AppEventService,
     protected populationService: FetchPopulationService,
@@ -77,8 +79,6 @@ export abstract class BaseCases implements OnInit, AfterViewInit, OnChanges {
   }
 
   setChartOptions() {};
-  abstract processData(_data: any);
-  abstract getSeriesName(_data: any);
 
   ngOnInit() {
     $(window).resize((params) => {
@@ -115,7 +115,7 @@ export abstract class BaseCases implements OnInit, AfterViewInit, OnChanges {
     this.dataService.sendGetRequest(url, true).subscribe(data => {
       data = this.processDataJson(data);
       
-      if (BaseCases.initialLoading) { // Sqave the latest data available date for the drill down 
+      if (BaseCases.initialLoading) { // Save the latest data available date for the drill down 
         this.config.latestDataDate = this.selectedDate;
       }
 
@@ -145,6 +145,18 @@ export abstract class BaseCases implements OnInit, AfterViewInit, OnChanges {
     });
   }
 
+  setMinMaxForVisualMap(_actualDeltas) {
+    const actualDeltas = _actualDeltas.sort((a, b) => {return b - a});
+    this.maxVal = actualDeltas[0];
+    this.minVal = actualDeltas[actualDeltas.length - 1];
+
+    if (this.maxVal > (-1 * this.minVal)) {
+      this.minVal = -1 * this.maxVal;
+    } else {
+      this.maxVal = -1 * this.minVal;
+    }
+  }
+
   setBestWorstPerformers() {
     const performers = this.processedSeriesData.sort((a, b) => {
       if (a.value < b.value) {
@@ -157,10 +169,7 @@ export abstract class BaseCases implements OnInit, AfterViewInit, OnChanges {
     });
 
     this.bestPerformers = performers.slice(0, 5).map(d => {
-      if (this.mapType === "india") {
-        return indiaStateCodes[d.name]
-      }
-      return d.name;
+      return this.getResolvedRegionName(d.name);
     }).reverse().join(', ');
 
     let i = 0;
@@ -175,11 +184,8 @@ export abstract class BaseCases implements OnInit, AfterViewInit, OnChanges {
       if (series.value < this.maxVal * this.config['worstPerformanceFactor']) {
         return;
       }
-      if (this.mapType === "india") {
-        worstPerformers.push(indiaStateCodes[series.name]);
-      } else {
-        worstPerformers.push(series.name);
-      }
+
+      worstPerformers.push(this.getResolvedRegionName(series.name));
     })
 
     this.worstPerformers = worstPerformers.join(', ');
@@ -213,17 +219,7 @@ export abstract class BaseCases implements OnInit, AfterViewInit, OnChanges {
 
   initDrilldown() {
     this.drilldownInProgress = true;
-    let url;
-    if (this.mapType === 'globe') {
-      url = this.dataFolder + '/result_' + this.fileNameToken + '_' +
-        this.selectedRegion + '_time_series_covid19_' + this.chartType + '_global.json' ;
-    } else if (this.mapType === 'india') {
-      url = this.dataFolder + '/result_' + this.fileNameToken + '_' +
-        this.selectedRegion + ' (India)_state_wise_daily_' + this.chartType + '.json';
-    } else {
-      url = this.dataFolder + '/result_' + this.fileNameToken + '_' +
-        this.selectedRegion + '_time_series_covid19_' + this.chartType + '_US.json';
-    }
+    const url = this.getDrilldownDataFileUrl();
 
     this.dataService.sendGetRequest(url).subscribe(data => {
       this.drilldownLineChartOption = this.getDrilldownChartOptions(data);
@@ -234,7 +230,7 @@ export abstract class BaseCases implements OnInit, AfterViewInit, OnChanges {
       this.drilldownLineChartInstance.setOption(this.drilldownLineChartOption);
       this.drilldownLineChartInstance.resize();
     }, error => {
-      this.setError("Forecasted data not found for " + this.selectedRegion);
+      this.setError("Forecasted data not found for " + this.getResolvedRegionName(this.selectedRegion));
       this.drilldownInProgress = false;
     });
   }
@@ -251,7 +247,7 @@ export abstract class BaseCases implements OnInit, AfterViewInit, OnChanges {
         itemWidth: 10,
         textGap: 20,
         inRange: {
-            color: ['red', 'yellow', 'green'].reverse()
+            color: ['green', 'yellow', 'red']
         },
         //text: ['High', 'Low'],
         align: 'bottom',
@@ -261,7 +257,7 @@ export abstract class BaseCases implements OnInit, AfterViewInit, OnChanges {
         calculable: true
       }],
       series: [{
-        name: 'County covid19 trends',
+        name: 'Covid19 trends',
         type: 'map',
         roam: true,
         map: this.mapType,
@@ -297,7 +293,7 @@ export abstract class BaseCases implements OnInit, AfterViewInit, OnChanges {
             }
 
             const type = me.chartType.toLowerCase() === 'confirmed' ? 'cases' : 'deaths';
-            const name = me.mapType === 'india' ? indiaStateCodes[me.getSeriesName(countyObj)] : me.getSeriesName(countyObj);
+            const name = me.getResolvedRegionName( me.getSeriesName(countyObj));
             return name +
             '<br/>' + 'New ' + type + ': ' + countyObj.actualDelta + ' (Forecasted: ' + countyObj.forecastDelta + ')' +
             '<br/>' + 'Total ' + type + ': ' + countyObj.actual + ' (Forecasted: ' + countyObj.forecast + ')'
@@ -354,7 +350,12 @@ export abstract class BaseCases implements OnInit, AfterViewInit, OnChanges {
     }
 
     if (upper < actualVal) {
-      upper = actualVal
+      if (i > actualHistorical.length - 1) {
+        upper = forecast
+      }
+      else {
+        upper = actualVal
+      }
     } else if (upper < forecast) {
       upper = forecast
     }
@@ -568,7 +569,7 @@ export abstract class BaseCases implements OnInit, AfterViewInit, OnChanges {
          myFeature: {
           show: true,
           title: this.expanded ? 'Exit full screen' : 'Full screen',
-          icon: this.expanded ? this.getCollapseImage() : this.getExpandImage(),
+          icon: this.expanded ? Utils.getCollapseImage() : Utils.getExpandImage(),
           iconStyle :{
             borderColor: 'white'
           },
@@ -617,7 +618,7 @@ export abstract class BaseCases implements OnInit, AfterViewInit, OnChanges {
       feature: {
         myFeature: {
           title: 'Full screen',
-          icon: this.getExpandImage(),
+          icon: Utils.getExpandImage(),
           iconStyle: {
             borderColor: 'white'
           }
@@ -630,7 +631,7 @@ export abstract class BaseCases implements OnInit, AfterViewInit, OnChanges {
     return {toolbox: {
       feature: {
           myFeature: {
-            icon: this.getCollapseImage(),
+            icon: Utils.getCollapseImage(),
             title: 'Exit full screen',
             iconStyle: {
               borderColor: 'white'
@@ -651,7 +652,7 @@ export abstract class BaseCases implements OnInit, AfterViewInit, OnChanges {
   }
 
   getDrilldownChartTitle(_includeDate?: boolean) {
-    const region = this.mapType === 'india' ? indiaStateCodes[this.selectedRegion] : this.selectedRegion;
+    const region = this.getResolvedRegionName(this.selectedRegion);
     return {
       text: region, //+ ' ' + this.chartType + (_includeDate ? ' (' + Utils.formatDate(this.selectedDate) + ')' : ''),
       subtext: 'Actual and Forecast for next week',
@@ -661,13 +662,5 @@ export abstract class BaseCases implements OnInit, AfterViewInit, OnChanges {
       },
       left: 'center'
     }
-  }
-
-  getExpandImage() {
-    return 'path://M384.97,12.03c0-6.713-5.317-12.03-12.03-12.03H264.847c-6.833,0-11.922,5.39-11.934,12.223    c0,6.821,5.101,11.838,11.934,11.838h96.062l-0.193,96.519c0,6.833,5.197,12.03,12.03,12.03c6.833-0.012,12.03-5.197,12.03-12.03    l0.193-108.369c0-0.036-0.012-0.06-0.012-0.084C384.958,12.09,384.97,12.066,384.97,12.03z M120.496,0H12.403c-0.036,0-0.06,0.012-0.096,0.012C12.283,0.012,12.247,0,12.223,0C5.51,0,0.192,5.317,0.192,12.03    L0,120.399c0,6.833,5.39,11.934,12.223,11.934c6.821,0,11.838-5.101,11.838-11.934l0.192-96.339h96.242    c6.833,0,12.03-5.197,12.03-12.03C132.514,5.197,127.317,0,120.496,0z M120.123,360.909H24.061v-96.242c0-6.833-5.197-12.03-12.03-12.03S0,257.833,0,264.667v108.092    c0,0.036,0.012,0.06,0.012,0.084c0,0.036-0.012,0.06-0.012,0.096c0,6.713,5.317,12.03,12.03,12.03h108.092    c6.833,0,11.922-5.39,11.934-12.223C132.057,365.926,126.956,360.909,120.123,360.909z M372.747,252.913c-6.833,0-11.85,5.101-11.838,11.934v96.062h-96.242c-6.833,0-12.03,5.197-12.03,12.03    s5.197,12.03,12.03,12.03h108.092c0.036,0,0.06-0.012,0.084-0.012c0.036-0.012,0.06,0.012,0.096,0.012    c6.713,0,12.03-5.317,12.03-12.03V264.847C384.97,258.014,379.58,252.913,372.747,252.913z'
-  }
-
-  getCollapseImage() {
-    return 'path://M264.943,156.665h108.273c6.833,0,11.934-5.39,11.934-12.211c0-6.833-5.101-11.85-11.934-11.838h-96.242V36.181    c0-6.833-5.197-12.03-12.03-12.03s-12.03,5.197-12.03,12.03v108.273c0,0.036,0.012,0.06,0.012,0.084    c0,0.036-0.012,0.06-0.012,0.096C252.913,151.347,258.23,156.677,264.943,156.665z M120.291,24.247c-6.821,0-11.838,5.113-11.838,11.934v96.242H12.03c-6.833,0-12.03,5.197-12.03,12.03    c0,6.833,5.197,12.03,12.03,12.03h108.273c0.036,0,0.06-0.012,0.084-0.012c0.036,0,0.06,0.012,0.096,0.012    c6.713,0,12.03-5.317,12.03-12.03V36.181C132.514,29.36,127.124,24.259,120.291,24.247z M120.387,228.666H12.115c-6.833,0.012-11.934,5.39-11.934,12.223c0,6.833,5.101,11.85,11.934,11.838h96.242v96.423    c0,6.833,5.197,12.03,12.03,12.03c6.833,0,12.03-5.197,12.03-12.03V240.877c0-0.036-0.012-0.06-0.012-0.084    c0-0.036,0.012-0.06,0.012-0.096C132.418,233.983,127.1,228.666,120.387,228.666z M373.3,228.666H265.028c-0.036,0-0.06,0.012-0.084,0.012c-0.036,0-0.06-0.012-0.096-0.012    c-6.713,0-12.03,5.317-12.03,12.03v108.273c0,6.833,5.39,11.922,12.223,11.934c6.821,0.012,11.838-5.101,11.838-11.922v-96.242    H373.3c6.833,0,12.03-5.197,12.03-12.03S380.134,228.678,373.3,228.666z'
   }
 }

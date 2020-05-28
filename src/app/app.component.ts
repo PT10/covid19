@@ -1,12 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { RawDataProviderService } from './services/raw-data-provider.service';
-import { usStateCodes } from './map-provider.service';
+import { usStateCodes } from './services/map-provider.service';
 import * as echarts from 'echarts/lib/echarts';
 import { ActivatedRoute } from '@angular/router';
 import { ConfigService } from './services/config.service';
 import { AppEventService } from './events/app-event.service';
 import { EventNames } from './events/EventNames';
-import { BaseCases } from './baseCases';
+import { BaseCases } from './tabs/baseCases';
 import { Utils } from './utils';
 import { MatDialog } from '@angular/material';
 import { EmbedComponent } from './cmp/embed/embed.component';
